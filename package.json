@@ -1,0 +1,13 @@
+{
+  "name": "campushub",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CampusHub campus communication platform",
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "test": "npm --workspace backend test",
+    "test:watch": "npm --workspace backend run test:watch",
+    "dev:backend": "npm --workspace backend run dev",
+    "build": "npm --workspace backend run build"
+  }
+}
