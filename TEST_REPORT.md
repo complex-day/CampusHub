@@ -60,11 +60,11 @@ Bucket I audited Buckets A-H against `docs/TDD.md`, ran the automated regression
 ## Automated Results
 
 - Focused security suite: **6 passed**
-- Full backend suite: **51 passed across 8 test files**
+- Full backend suite: **68 passed across 10 test files**
 - TypeScript build: **passed**
 - `git diff --check`: **passed**
 - Editor diagnostics: **no errors**
-- Coverage: **77.55% statements/lines, 67.40% branches, 77.27% functions**
+- Coverage: **81.44% statements/lines, 74.13% branches, 80% functions**
 
 ## Regression Coverage
 
@@ -80,21 +80,19 @@ No automated tests failed in the final run.
 
 ## Known Issues and Limitations
 
-- The TDD target of at least 80% coverage is not met; current measured coverage is 77.55%.
 - Performance, concurrency, database-integrity, and memory/resource requirements remain unimplemented test work.
 - Manual browser end-to-end verification remains outstanding.
-- The frontend is not independently buildable because no frontend package/configuration is present.
-- Dependency installation reports two high-severity audit findings, requiring a separate dependency review.
+- The frontend build setup now passes, but browser E2E verification remains outstanding.
+- Backend dependency findings are remediated; the full audit reports one high and one moderate frontend Next/PostCSS finding pending a tested major upgrade.
 - Production verification requires MongoDB and Cloudinary credentials.
 
 ## Recommended Fixes
 
-1. Add missing controller/error-branch tests to reach at least 80% coverage.
-2. Add isolated database-integrity tests for required ownership and deletion behavior.
-3. Add repeatable load/concurrency and memory smoke tests before production deployment.
-4. Add a frontend package/build/test setup and run the complete browser workflow.
-5. Review and remediate the two high-severity dependency audit findings.
+1. Add isolated database-integrity tests for required ownership and deletion behavior.
+2. Add repeatable load/concurrency and memory smoke tests before production deployment.
+3. Add a frontend package/build/test setup and run the complete browser workflow.
+4. Review and remediate the two high-severity dependency audit findings.
 
 ## Release Assessment
 
-The automated MVP regression suite is stable, but the project is **not fully release-ready under the TDD definition of done** until the coverage threshold, performance/resource checks, database-integrity tests, manual end-to-end verification, and dependency audit review are completed.
+The automated MVP regression suite is stable and the coverage threshold is met, but the project is **not fully release-ready under the TDD definition of done** until performance/resource checks, database-integrity tests, manual end-to-end verification, and dependency audit review are completed.

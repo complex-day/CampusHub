@@ -110,7 +110,16 @@
 
 ## Current Work
 
-- Bucket J: Deployment & Production Release
+- Bucket J0: Production Readiness Audit Remediation
+
+## Bucket J0 Decisions
+
+- Removed unused `multer-storage-cloudinary`, upgraded the directly used Cloudinary SDK to `^2.7.0`, and confirmed the backend audit is clean without `--force`.
+- Added a minimal Next.js frontend workspace with a required root layout and `BACKEND_ORIGIN` rewrite for existing relative `/api/...` calls.
+- Production startup validates JWT, MongoDB, and Cloudinary variables. Backend and frontend environment examples contain placeholders only.
+- `GET /health` remains unauthenticated and returns service liveness. `GET /ready` is unauthenticated and returns 200 only for Mongoose readyState 1, otherwise 503.
+- Server startup connects before listening and handles SIGINT/SIGTERM by closing HTTP, disconnecting Mongoose, and exiting. Startup helpers are testable without real services.
+- J0 validation has 68 passing backend tests across 10 files, including deterministic auth, startup/configuration, shutdown, and upload failure coverage. V8 coverage is 81.44% statements/lines, 74.13% branches, and 80% functions. Full audit still reports Next/PostCSS findings; performance, integrity, resource, browser E2E, and production smoke checks remain open.
 
 ## Memory Rule
 

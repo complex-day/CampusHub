@@ -48,6 +48,44 @@ describe("authentication", () => {
     expect(response.status).toBe(400);
   });
 
+  it("rejects duplicate registration and missing login users", async () => {
+    vi.spyOn(User, "findOne").mockReturnValueOnce({ lean: vi.fn().mockResolvedValue({ _id: "existing-user" }) } as any);
+    const duplicate = await request(app).post("/api/auth/register").send({ name: "Raja", email: "new@example.com", password: "Password123", collegeId: "college-1" });
+    const loginQuery = { select: vi.fn().mockResolvedValue(null) };
+    vi.spyOn(User, "findOne").mockReturnValue(loginQuery as any);
+    const missing = await request(app).post("/api/auth/login").send({ email: "missing@example.com", password: "Password123" });
+
+    expect(duplicate.status).toBe(409);
+    expect(missing.status).toBe(401);
+  });
+
+  it("returns a generic error when registration persistence fails", async () => {
+    vi.spyOn(User, "findOne").mockReturnValue({ lean: vi.fn().mockResolvedValue(null) } as any);
+    vi.spyOn(bcrypt, "hash").mockResolvedValue("hashed-password" as never);
+    vi.spyOn(User, "create").mockRejectedValue(new Error("database unavailable"));
+
+    const response = await request(app).post("/api/auth/register").send({ name: "Raja", email: "new@example.com", password: "Password123", collegeId: "college-1" });
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Unable to register user" });
+  });
+
+  it("returns a generic error when login persistence fails", async () => {
+    vi.spyOn(User, "findOne").mockReturnValue({ select: vi.fn().mockRejectedValue(new Error("database unavailable")) } as any);
+
+    const response = await request(app).post("/api/auth/login").send({ email: "raja@example.com", password: "Password123" });
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({ error: "Unable to login" });
+  });
+
+  it("clears the session cookie on logout", async () => {
+    const response = await request(app).post("/api/auth/logout");
+
+    expect(response.status).toBe(204);
+    expect(response.headers["set-cookie"][0]).toContain("campushub_token=;");
+  });
+
   it("AUTH-003 rejects incorrect credentials with 401", async () => {
     const query = { select: vi.fn().mockResolvedValue({ ...mockedUser }) };
     vi.spyOn(User, "findOne").mockReturnValue(query as any);

@@ -3,14 +3,14 @@ import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { app } from "../app.js";
 import { config } from "../config.js";
+import { resetRateLimiters } from "../middleware/securityMiddleware.js";
+
+const uploadStream = vi.hoisted(() => vi.fn());
 
 vi.mock("../config/cloudinary.js", () => ({
   cloudinary: {
     uploader: {
-      upload_stream: vi.fn((_options, callback) => {
-        const stream = { end: vi.fn(() => queueMicrotask(() => callback(null, { secure_url: "https://res.cloudinary.com/demo/image/upload/poster.png" }))) };
-        return stream;
-      })
+      upload_stream: uploadStream
     }
   }
 }));
@@ -33,7 +33,14 @@ function pngBuffer(size = 40) {
 }
 
 describe("poster uploads", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    resetRateLimiters();
+    uploadStream.mockImplementation((_options, callback) => {
+      const stream = { end: vi.fn(() => queueMicrotask(() => callback(null, { secure_url: "https://res.cloudinary.com/demo/image/upload/poster.png" }))) };
+      return stream;
+    });
+  });
 
   it("UPLOAD-001 accepts a valid PNG and returns a Cloudinary URL", async () => {
     const response = await request(app).post("/api/uploads/poster").set("Authorization", `Bearer ${auth("faculty")}`).attach("poster", pngBuffer(), "poster.png");
@@ -62,6 +69,30 @@ describe("poster uploads", () => {
   it("UPLOAD-005 rejects corrupted image content", async () => {
     const response = await request(app).post("/api/uploads/poster").set("Authorization", `Bearer ${auth("faculty")}`).attach("poster", Buffer.from("not an image"), "poster.png");
     expect(response.status).toBe(400);
+  });
+
+  it("rejects a request without a poster file", async () => {
+    const response = await request(app).post("/api/uploads/poster").set("Authorization", `Bearer ${auth("faculty")}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "A poster file is required" });
+  });
+
+  it("returns a gateway error when Cloudinary fails or omits its URL", async () => {
+    uploadStream.mockImplementationOnce((_options: unknown, callback: (error: Error, result?: unknown) => void) => ({
+      end: vi.fn(() => queueMicrotask(() => callback(new Error("provider unavailable"))))
+    }));
+    const providerFailure = await request(app).post("/api/uploads/poster").set("Authorization", `Bearer ${auth("faculty")}`).attach("poster", pngBuffer(), "poster.png");
+
+    uploadStream.mockImplementationOnce((_options: unknown, callback: (error: null, result: object) => void) => ({
+      end: vi.fn(() => queueMicrotask(() => callback(null, {})))
+    }));
+    const missingUrl = await request(app).post("/api/uploads/poster").set("Authorization", `Bearer ${auth("faculty")}`).attach("poster", pngBuffer(), "poster.png");
+
+    expect(providerFailure.status).toBe(502);
+    expect(missingUrl.status).toBe(502);
+    expect(providerFailure.body).toEqual({ error: "Unable to store poster" });
+    expect(missingUrl.body).toEqual({ error: "Unable to store poster" });
   });
 
   it("requires faculty or admin authorization", async () => {
