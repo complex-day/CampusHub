@@ -13,6 +13,7 @@ import { eventRouter } from "./routes/eventRoutes.js";
 import { searchRouter } from "./routes/searchRoutes.js";
 import { globalErrorHandler } from "./middleware/errorMiddleware.js";
 import { securityHeaders } from "./middleware/securityMiddleware.js";
+import { adminRouter } from "./routes/adminRoutes.js";
 
 export const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/announcements", announcementRouter);
 app.use("/api/uploads", uploadRouter);
 app.use("/api/events", eventRouter);
 app.use("/api/search", searchRouter);
+app.use("/api/admin", adminRouter);
 app.get("/api/me", requireAuth, (request, response) => {
   response.json({ auth: (request as typeof request & { auth?: unknown }).auth });
 });

@@ -58,7 +58,7 @@
 
 ## Current Work
 
-- Bucket G: Security & Hardening
+- Bucket I: Testing & Quality Assurance
 
 ## Bucket D Decisions
 
@@ -91,6 +91,15 @@
 - Production startup requires JWT, MongoDB, and all Cloudinary credentials. Development and tests retain local defaults without requiring external services.
 - A global error handler returns generic JSON for malformed JSON, Multer, validation, and unknown failures. Operational logs use event names only and never include credentials, tokens, request bodies, or provider internals.
 - Department membership queries derive both user and department scope from the authenticated college, preventing cross-tenant membership reads or writes.
+
+## Bucket H Decisions
+
+- Admin APIs live under `/api/admin` and apply `requireAuth` followed by `requireRole("admin")` at the router boundary.
+- Admin metrics use a dedicated service and parallel `countDocuments` calls. Counts are scoped to the authenticated administrator's college; the college count is the administrator's own college.
+- The current token model has no platform-admin distinction, so all admin user, content, college, and department operations remain same-college scoped. Client college filters cannot widen that scope.
+- User administration accepts only `student`, `faculty`, or `admin`, rejects unknown/operator-shaped payloads, uses bounded pagination, and selects safe fields without `passwordHash`.
+- Announcement and event moderation is paginated, returns selected safe fields, and deletes only matching same-college records.
+- Frontend admin pages use dependency-free JSX, credentialed requests, shared auth/error handling, and explicit loading, empty, and mutation states.
 
 ## Memory Rule
 
