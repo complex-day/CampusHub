@@ -7,7 +7,7 @@ export function requireAuth(request: Request, response: Response, next: NextFunc
   const authenticatedRequest = request as AuthenticatedRequest;
   const token = request.cookies?.campushub_token ?? request.header("authorization")?.replace(/^Bearer\s+/i, "");
 
-  if (!token) {
+  if (typeof token !== "string" || token.length === 0) {
     response.status(401).json({ error: "Authentication required" });
     return;
   }

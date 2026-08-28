@@ -25,7 +25,7 @@ describe("authentication", () => {
     vi.spyOn(User, "create").mockResolvedValue(mockedUser as any);
     vi.spyOn(bcrypt, "hash").mockResolvedValue("hashed-password" as never);
 
-    const response = await request(app).post("/api/auth/register").send({ name: "Raja", email: "Raja@example.com", password: "password123", collegeId: "college-1" });
+    const response = await request(app).post("/api/auth/register").send({ name: "Raja", email: "Raja@example.com", password: "Password123", collegeId: "college-1" });
 
     expect(response.status).toBe(201);
     expect(response.body.user).toEqual(expect.objectContaining({ email: "raja@example.com", collegeId: "college-1" }));
@@ -41,6 +41,11 @@ describe("authentication", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers["set-cookie"][0]).toContain("campushub_token=");
+  });
+
+  it("rejects registration passwords without complexity", async () => {
+    const response = await request(app).post("/api/auth/register").send({ name: "Raja", email: "new@example.com", password: "password123", collegeId: "college-1" });
+    expect(response.status).toBe(400);
   });
 
   it("AUTH-003 rejects incorrect credentials with 401", async () => {

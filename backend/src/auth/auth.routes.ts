@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { ZodError } from "zod";
 import { login, register } from "./auth.service.js";
+import { authRateLimit } from "../middleware/securityMiddleware.js";
 
 export const authRouter = Router();
 const cookieOptions = { httpOnly: true, sameSite: "lax" as const, secure: process.env.NODE_ENV === "production", maxAge: 24 * 60 * 60 * 1000 };
@@ -9,7 +10,7 @@ function validationError(error: unknown): error is ZodError {
   return error instanceof ZodError;
 }
 
-authRouter.post("/register", async (request, response) => {
+authRouter.post("/register", authRateLimit, async (request, response) => {
   try {
     const user = await register(request.body);
     response.status(201).json({ user });
@@ -23,11 +24,12 @@ authRouter.post("/register", async (request, response) => {
       response.status(409).json({ error: "Email is already registered" });
       return;
     }
+    console.error("auth_register_failed");
     response.status(500).json({ error: "Unable to register user" });
   }
 });
 
-authRouter.post("/login", async (request, response) => {
+authRouter.post("/login", authRateLimit, async (request, response) => {
   try {
     const result = await login(request.body);
     response.cookie("campushub_token", result.token, cookieOptions);
@@ -42,6 +44,7 @@ authRouter.post("/login", async (request, response) => {
       response.status(401).json({ error: "Invalid email or password" });
       return;
     }
+    console.error("auth_login_failed");
     response.status(500).json({ error: "Unable to login" });
   }
 });

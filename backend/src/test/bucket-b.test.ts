@@ -67,8 +67,8 @@ describe("Bucket B college and department management", () => {
 
   it("DEP-003 assigns a same-college department", async () => {
     const user = { _id: userA, collegeId: collegeA, save: vi.fn().mockResolvedValue(undefined) };
-    vi.spyOn(User, "findById").mockResolvedValue(user as any);
-    vi.spyOn(Department, "findById").mockReturnValue({ lean: vi.fn().mockResolvedValue({ _id: departmentA, collegeId: collegeA }) } as any);
+    vi.spyOn(User, "findOne").mockResolvedValue(user as any);
+    vi.spyOn(Department, "findOne").mockReturnValue({ lean: vi.fn().mockResolvedValue({ _id: departmentA, collegeId: collegeA }) } as any);
 
     const response = await request(app)
       .patch(`/api/users/${userA}/department`)
@@ -81,8 +81,8 @@ describe("Bucket B college and department management", () => {
 
   it("DEP-004 blocks a cross-college department assignment", async () => {
     const user = { _id: userA, collegeId: collegeA, save: vi.fn() };
-    vi.spyOn(User, "findById").mockResolvedValue(user as any);
-    vi.spyOn(Department, "findById").mockReturnValue({ lean: vi.fn().mockResolvedValue({ _id: departmentA, collegeId: collegeB }) } as any);
+    vi.spyOn(User, "findOne").mockResolvedValue(user as any);
+    vi.spyOn(Department, "findOne").mockReturnValue({ lean: vi.fn().mockResolvedValue({ _id: departmentA, collegeId: collegeB }) } as any);
 
     const response = await request(app)
       .patch(`/api/users/${userA}/department`)

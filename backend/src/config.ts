@@ -1,10 +1,19 @@
 import "dotenv/config";
 
-const requiredSecret = process.env.JWT_SECRET;
+const requiredProductionVariables = [
+  "JWT_SECRET",
+  "MONGODB_URI",
+  "CLOUDINARY_CLOUD_NAME",
+  "CLOUDINARY_API_KEY",
+  "CLOUDINARY_API_SECRET"
+] as const;
 
-if (!requiredSecret && process.env.NODE_ENV === "production") {
-  throw new Error("JWT_SECRET must be configured in production");
+if (process.env.NODE_ENV === "production") {
+  const missing = requiredProductionVariables.filter((name) => !process.env[name]);
+  if (missing.length > 0) throw new Error(`Missing production configuration: ${missing.join(", ")}`);
 }
+
+const requiredSecret = process.env.JWT_SECRET;
 
 export const config = {
   port: Number(process.env.PORT ?? 4000),

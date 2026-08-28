@@ -5,12 +5,21 @@ import { Event } from "../models/event.model.js";
 import { College } from "../models/college.model.js";
 import { Department } from "../models/department.model.js";
 import { User } from "../models/user.model.js";
+import { sanitizeText } from "../middleware/securityMiddleware.js";
+
+function isHttpUrl(value: string): boolean {
+  try {
+    return ["http:", "https:"].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
 
 const eventFields = {
-  title: z.string().trim().min(1).max(200),
-  description: z.string().trim().min(1).max(10000),
-  location: z.string().trim().min(1).max(500),
-  posterUrl: z.string().url().max(2048).nullable().optional(),
+  title: z.string().trim().min(1).max(200).transform(sanitizeText),
+  description: z.string().trim().min(1).max(10000).transform(sanitizeText),
+  location: z.string().trim().min(1).max(500).transform(sanitizeText),
+  posterUrl: z.string().url().max(2048).refine(isHttpUrl, "Invalid poster URL").nullable().optional(),
   departmentId: z.string().refine(isValidObjectId, "Invalid department id").nullable().optional()
 };
 
@@ -18,7 +27,7 @@ const createEventSchema = z.object({
   ...eventFields,
   collegeId: z.string().refine(isValidObjectId, "Invalid college id"),
   eventDate: z.string().datetime({ offset: true })
-});
+}).strict();
 
 const updateEventSchema = z.object({
   ...eventFields,

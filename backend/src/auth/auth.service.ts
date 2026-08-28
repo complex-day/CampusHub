@@ -3,19 +3,21 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { config } from "../config.js";
 import { User } from "../models/user.model.js";
+import { sanitizeText } from "../middleware/securityMiddleware.js";
 
+const safeText = (min: number, max: number) => z.string().trim().min(min).max(max).transform(sanitizeText);
 export const registerSchema = z.object({
-  name: z.string().trim().min(2).max(100),
+  name: safeText(2, 100),
   email: z.string().trim().email(),
-  password: z.string().min(8).max(128),
+  password: z.string().min(8).max(128).regex(/[a-z]/, "Password must contain a lowercase letter").regex(/[A-Z]/, "Password must contain an uppercase letter").regex(/[0-9]/, "Password must contain a number"),
   collegeId: z.string().trim().min(1).max(100),
   departmentId: z.string().trim().min(1).max(100).optional()
-});
+}).strict();
 
 export const loginSchema = z.object({
   email: z.string().trim().email(),
   password: z.string().min(1).max(128)
-});
+}).strict();
 
 export type AuthUser = {
   id: string;
@@ -32,6 +34,13 @@ export type AuthTokenPayload = {
   role: "student" | "faculty" | "admin";
   departmentId?: string;
 };
+
+const tokenSchema = z.object({
+  userId: z.string().min(1),
+  collegeId: z.string().min(1),
+  role: z.enum(["student", "faculty", "admin"]),
+  departmentId: z.string().min(1).optional()
+});
 
 function toPublicUser(user: any): AuthUser {
   return {
@@ -82,8 +91,5 @@ export async function login(input: unknown): Promise<{ user: AuthUser; token: st
 
 export function verifyToken(token: string): AuthTokenPayload {
   const payload = jwt.verify(token, config.jwtSecret);
-  if (typeof payload !== "object" || !payload.userId || !payload.collegeId || !payload.role) {
-    throw new Error("INVALID_TOKEN");
-  }
-  return payload as AuthTokenPayload;
+  return tokenSchema.parse(payload);
 }

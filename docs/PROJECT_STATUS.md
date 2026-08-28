@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Bucket F: Search System
+Bucket G: Security & Hardening
 
 ## Completed
 
@@ -13,19 +13,20 @@ Bucket F: Search System
 - Poster Upload System: authenticated faculty/admin Cloudinary uploads with image validation and a 5MB limit.
 - Event Management System: tenant-scoped event model, authenticated CRUD API, upcoming nearest-first feed, department targeting, role/ownership authorization, and frontend event screens.
 - Search System: authenticated cross-collection MongoDB text search for announcements and events, tenant and department visibility enforcement, relevance sorting, safe validation, focused tests, and frontend search UI.
+- Security & Hardening: rate limiting, Helmet security headers, strict sanitized input validation, NoSQL/operator-injection protection, validated JWT claims, stronger passwords, production environment checks, safe global errors, safe failure logging, upload hardening, and tenant-scoped membership queries.
 
 ## Current Task
 
-Bucket F is complete. The next implementation is Bucket G: Security & Hardening.
+Bucket G is complete. The next implementation is Bucket H: Admin Dashboard.
 
 ## Validation
 
-- Focused search suite covers SEARCH-001 through SEARCH-004 plus authentication, validation, isolation, limits, both collections, query construction, and safe database failure handling.
+- Focused security suite covers SEC-001 through SEC-004 plus JWT, injection, XSS, headers, rate limiting, malformed JSON, and password disclosure behavior.
 - Full backend suite and TypeScript build pass.
 
 ## Next Task
 
-Implement Bucket G Security & Hardening.
+Implement Bucket H Admin Dashboard.
 
 ## Known Assumptions
 

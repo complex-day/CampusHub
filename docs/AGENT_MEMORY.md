@@ -82,6 +82,16 @@
 - Search returns at most 20 results per collection, sorted by MongoDB text relevance with `createdAt` as the tie-breaker. Text-search failures return a generic 500 response.
 - The frontend search page uses the existing credentialed fetch convention and links results to announcement and event detail routes.
 
+## Bucket G Decisions
+
+- Helmet is applied globally and route-specific express-rate-limit middleware protects authentication, search, uploads, announcement creation, and event creation. The limiters remain active in tests and expose `resetRateLimiters()` for deterministic security tests.
+- Zod remains the validation boundary. User-visible text is HTML-encoded before persistence, unknown object fields are rejected, IDs remain strings validated as ObjectIds where applicable, and poster URLs accept only HTTP(S) schemes.
+- JWT verification validates required string claims and restricts roles to `student`, `faculty`, or `admin`; Bearer and httpOnly cookie authentication remain supported.
+- Registration passwords remain at least eight characters and now require lowercase, uppercase, and numeric characters. Password hashes remain selected out and public user responses contain no password data.
+- Production startup requires JWT, MongoDB, and all Cloudinary credentials. Development and tests retain local defaults without requiring external services.
+- A global error handler returns generic JSON for malformed JSON, Multer, validation, and unknown failures. Operational logs use event names only and never include credentials, tokens, request bodies, or provider internals.
+- Department membership queries derive both user and department scope from the authenticated college, preventing cross-tenant membership reads or writes.
+
 ## Memory Rule
 
 Read this file before starting a task. Update it after completing a task whenever a technical decision, completed chunk, or important assumption changes.

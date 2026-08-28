@@ -5,14 +5,23 @@ import { Announcement } from "../models/announcement.model.js";
 import { College } from "../models/college.model.js";
 import { Department } from "../models/department.model.js";
 import { User } from "../models/user.model.js";
+import { sanitizeText } from "../middleware/securityMiddleware.js";
+
+function isHttpUrl(value: string): boolean {
+  try {
+    return ["http:", "https:"].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
 
 const announcementInputSchema = z.object({
-  title: z.string().trim().min(1).max(200),
-  description: z.string().trim().min(1).max(10000),
-  posterUrl: z.string().url().max(2048).optional().nullable(),
+  title: z.string().trim().min(1).max(200).transform(sanitizeText),
+  description: z.string().trim().min(1).max(10000).transform(sanitizeText),
+  posterUrl: z.string().url().max(2048).refine(isHttpUrl, "Invalid poster URL").optional().nullable(),
   collegeId: z.string().refine(isValidObjectId, "Invalid college id"),
   departmentId: z.string().refine(isValidObjectId, "Invalid department id").nullable().optional()
-});
+}).strict();
 
 function pagination(request: AuthenticatedRequest): { page: number; limit: number } {
   const page = Math.max(1, Number.parseInt(String(request.query.page ?? "1"), 10) || 1);

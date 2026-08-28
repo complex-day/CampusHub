@@ -4,15 +4,16 @@ import type { AuthenticatedRequest } from "../auth/auth.middleware.js";
 import { College } from "../models/college.model.js";
 import { Department } from "../models/department.model.js";
 import { User } from "../models/user.model.js";
+import { sanitizeText } from "../middleware/securityMiddleware.js";
 
 const departmentInputSchema = z.object({
-  name: z.string().trim().min(2).max(200),
+  name: z.string().trim().min(2).max(200).transform(sanitizeText),
   collegeId: z.string().refine(isValidObjectId, "Invalid college id")
-});
+}).strict();
 
 const membershipSchema = z.object({
   departmentId: z.string().refine(isValidObjectId, "Invalid department id")
-});
+}).strict();
 
 function isDuplicateKey(error: unknown): boolean {
   return Boolean(error && typeof error === "object" && "code" in error && error.code === 11000);
@@ -76,8 +77,8 @@ export async function assignDepartment(request: AuthenticatedRequest, response: 
   try {
     const { departmentId } = membershipSchema.parse(request.body);
     const [user, department] = await Promise.all([
-      User.findById(request.params.id),
-      Department.findById(departmentId).lean()
+      User.findOne({ _id: request.params.id, collegeId: request.auth?.collegeId }),
+      Department.findOne({ _id: departmentId, collegeId: request.auth?.collegeId }).lean()
     ]);
     if (!user) {
       response.status(404).json({ error: "User not found" });

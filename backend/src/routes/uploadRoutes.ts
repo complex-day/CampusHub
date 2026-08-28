@@ -4,10 +4,11 @@ import { requireAuth } from "../auth/auth.middleware.js";
 import { requireRole } from "../middleware/roleMiddleware.js";
 import { isValidImageContent, posterUpload } from "../middleware/uploadMiddleware.js";
 import { uploadPoster } from "../services/uploadService.js";
+import { uploadRateLimit } from "../middleware/securityMiddleware.js";
 
 export const uploadRouter = Router();
 
-uploadRouter.post("/poster", requireAuth, requireRole("faculty", "admin"), (request, response) => {
+uploadRouter.post("/poster", uploadRateLimit, requireAuth, requireRole("faculty", "admin"), (request, response) => {
   posterUpload.single("poster")(request, response, async (error) => {
     if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
       response.status(400).json({ error: "Poster must be 5MB or smaller" });
@@ -29,6 +30,7 @@ uploadRouter.post("/poster", requireAuth, requireRole("faculty", "admin"), (requ
       const posterUrl = await uploadPoster(request.file.buffer);
       response.status(201).json({ posterUrl });
     } catch {
+      console.error("upload_poster_failed");
       response.status(502).json({ error: "Unable to store poster" });
     }
   });

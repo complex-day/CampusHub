@@ -1,11 +1,12 @@
 import { isValidObjectId } from "mongoose";
 import { z, ZodError } from "zod";
 import { College } from "../models/college.model.js";
+import { sanitizeText } from "../middleware/securityMiddleware.js";
 
 const collegeInputSchema = z.object({
-  name: z.string().trim().min(2).max(200),
-  description: z.string().trim().min(1).max(2000)
-});
+  name: z.string().trim().min(2).max(200).transform(sanitizeText),
+  description: z.string().trim().min(1).max(2000).transform(sanitizeText)
+}).strict();
 
 function isDuplicateKey(error: unknown): boolean {
   return Boolean(error && typeof error === "object" && "code" in error && error.code === 11000);

@@ -26,6 +26,7 @@ export async function search(request: AuthenticatedRequest, response: any): Prom
       response.status(400).json({ error: "Invalid search query", details: error.issues });
       return;
     }
+    console.error("search_failed");
     response.status(500).json({ error: "Unable to search campus content" });
   }
 }

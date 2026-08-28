@@ -11,9 +11,13 @@ import { announcementRouter } from "./routes/announcementRoutes.js";
 import { uploadRouter } from "./routes/uploadRoutes.js";
 import { eventRouter } from "./routes/eventRoutes.js";
 import { searchRouter } from "./routes/searchRoutes.js";
+import { globalErrorHandler } from "./middleware/errorMiddleware.js";
+import { securityHeaders } from "./middleware/securityMiddleware.js";
 
 export const app = express();
 
+app.disable("x-powered-by");
+app.use(securityHeaders);
 app.use(cors({ origin: config.clientOrigin, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
@@ -33,3 +37,5 @@ app.use("/api/search", searchRouter);
 app.get("/api/me", requireAuth, (request, response) => {
   response.json({ auth: (request as typeof request & { auth?: unknown }).auth });
 });
+
+app.use(globalErrorHandler);
