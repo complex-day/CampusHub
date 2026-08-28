@@ -58,7 +58,7 @@
 
 ## Current Work
 
-- Bucket E: Event Management API
+- Bucket F: Search System
 
 ## Bucket D Decisions
 
@@ -66,6 +66,14 @@
 - `POST /api/uploads/poster` requires authentication and the faculty or admin role, and returns `{ posterUrl }` after Cloudinary upload.
 - Supported poster formats are JPG, JPEG, PNG, and WebP; the maximum upload size is 5MB.
 - Announcements keep an optional validated `posterUrl`; the existing announcement creation and feed APIs remain compatible with requests that omit it.
+
+## Bucket E Decisions
+
+- Events require title, description, college, future ISO event date, and location; poster URL and department are optional.
+- Event reads derive college scope and department visibility from the authenticated token. College-wide events use `departmentId: null` and department events are visible only to matching users.
+- Faculty can edit or delete only their own events. Admins can manage any event in their college. Client college IDs are checked but never used to widen tenant scope.
+- Event feeds filter future dates and sort by `eventDate` ascending. Compound indexes support college/date and college/department/date access.
+- Event creation reuses the existing `/api/uploads/poster` flow and does not introduce another upload system.
 
 ## Memory Rule
 
