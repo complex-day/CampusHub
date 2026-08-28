@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Bucket H: Admin Dashboard
+Bucket I: Testing & Quality Assurance
 
 ## Completed
 
@@ -15,20 +15,23 @@ Bucket H: Admin Dashboard
 - Search System: authenticated cross-collection MongoDB text search for announcements and events, tenant and department visibility enforcement, relevance sorting, safe validation, focused tests, and frontend search UI.
 - Security & Hardening: rate limiting, Helmet security headers, strict sanitized input validation, NoSQL/operator-injection protection, validated JWT claims, stronger passwords, production environment checks, safe global errors, safe failure logging, upload hardening, and tenant-scoped membership queries.
 - Admin Dashboard: tenant-scoped admin metrics, user search/filter/pagination and role management, college and department management, paginated announcement/event moderation, delete actions, protected admin APIs, and frontend administration pages.
+- Testing & Quality Assurance: TDD audit, full automated regression suite, coverage measurement, build verification, and release-readiness report.
 
 ## Current Task
 
-Bucket H is complete. The next implementation is Bucket I: Testing & Quality Assurance.
+Bucket I audit is complete. The next implementation is Bucket J: Deployment & Production Release.
 
 ## Validation
 
 - Focused security suite covers SEC-001 through SEC-004 plus JWT, injection, XSS, headers, rate limiting, malformed JSON, and password disclosure behavior.
-- Full backend suite and TypeScript build pass.
-- Bucket H focused admin suite covers admin protection, metrics, user role validation and updates, pagination, moderation deletion, tenant isolation, and department management.
+- Full backend suite: 51 tests passed across 8 files.
+- TypeScript build and `git diff --check` pass.
+- Coverage: 77.55% statements/lines, below the TDD target of 80%.
+- Complete audit and release assessment: `TEST_REPORT.md`.
 
 ## Next Task
 
-Implement Bucket I Testing & Quality Assurance.
+Implement Bucket J Deployment & Production Release after the outstanding QA gaps are addressed.
 
 ## Known Assumptions
 
@@ -40,3 +43,16 @@ Implement Bucket I Testing & Quality Assurance.
 ## Blocked
 
 None.
+## Known Limitations
+
+- Performance, concurrency, database-integrity, and memory/resource tests are not yet implemented.
+- Manual browser end-to-end verification is outstanding because the frontend has no package/build setup and production services are not configured locally.
+- Coverage is currently below the 80% TDD target.
+- Dependency installation reports two high-severity audit findings requiring review.
+
+## Remaining Deployment Tasks
+
+- Configure production MongoDB, Cloudinary, JWT, and frontend/backend environment variables.
+- Add frontend build/test automation and complete the manual workflow.
+- Complete load, memory, and database-integrity validation.
+- Resolve the dependency audit findings and perform deployment smoke tests.

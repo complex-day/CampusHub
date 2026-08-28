@@ -101,6 +101,17 @@
 - Announcement and event moderation is paginated, returns selected safe fields, and deletes only matching same-college records.
 - Frontend admin pages use dependency-free JSX, credentialed requests, shared auth/error handling, and explicit loading, empty, and mutation states.
 
+## Bucket I Decisions
+
+- The final automated backend suite passes 51 tests across authentication, Bucket B, announcements, uploads, events, search, security, and admin coverage.
+- Coverage is measured with Vitest V8 at 77.55% statements/lines, 67.40% branches, and 77.27% functions, below the TDD target of 80%.
+- TDD functional, authorization, and security identifiers are mapped in `TEST_REPORT.md` and pass. Performance, database-integrity, memory/resource, and manual end-to-end checks remain unimplemented or unverified.
+- No business features were added during QA; the remaining release work is coverage improvement, load/resource/database validation, frontend build/test setup, dependency audit review, and deployment smoke testing.
+
+## Current Work
+
+- Bucket J: Deployment & Production Release
+
 ## Memory Rule
 
 Read this file before starting a task. Update it after completing a task whenever a technical decision, completed chunk, or important assumption changes.
