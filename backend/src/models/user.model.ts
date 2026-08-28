@@ -6,8 +6,8 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ["student", "faculty", "admin"], default: "student" },
-    collegeId: { type: String, required: true, trim: true },
-    departmentId: { type: String, trim: true },
+    collegeId: { type: Schema.Types.ObjectId, ref: "College", required: true },
+    departmentId: { type: Schema.Types.ObjectId, ref: "Department" },
     createdAt: { type: Date, default: Date.now }
   },
   { versionKey: false }
