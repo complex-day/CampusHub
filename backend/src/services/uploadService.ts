@@ -1,3 +1,4 @@
+import type { Writable } from "node:stream";
 import { cloudinary } from "../config/cloudinary.js";
 
 export function uploadPoster(buffer: Buffer): Promise<string> {
@@ -12,6 +13,6 @@ export function uploadPoster(buffer: Buffer): Promise<string> {
         resolve(result.secure_url);
       }
     );
-    stream.end(buffer);
+    (stream as unknown as Writable).end(buffer);
   });
 }
