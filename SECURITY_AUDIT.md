@@ -24,9 +24,7 @@ The backend production-only and full audits report no remaining backend vulnerab
 
 ## Frontend findings and residual risk
 
-After adding Next.js, the full and production-only audits report one high PostCSS advisory and one moderate Next advisory through `next@15.5.24`. npm offers `next@16.3.3` as a major upgrade. It was not applied because the major-version compatibility, runtime requirements, and complete browser regression workflow have not been validated. No forced upgrade was used.
-
-This unresolved frontend audit is a release blocker. Before production, test and apply a supported Next upgrade, or pin a supported patched dependency chain after confirming compatibility.
+After adding Next.js, the frontend was upgraded to `next@16.3.3`. The full npm audit and backend production-only audit now report 0 vulnerabilities. The backend and frontend production builds pass after the upgrade, with browser E2E and real provider verification remaining open.
 
 ## Other controls reviewed
 
@@ -36,4 +34,4 @@ This unresolved frontend audit is a release blocker. Before production, test and
 
 ## Residual risk
 
-No production credentials were read. Cloudinary and MongoDB connectivity, dependency behavior under production traffic, browser E2E behavior, and performance/resource limits remain unverified.
+No production credentials were read. Cloudinary and MongoDB connectivity, dependency behavior under production traffic, browser E2E behavior, performance/resource limits, and all real staging smoke tests remain unverified. No staging deployment has occurred.
