@@ -49,9 +49,16 @@
 - Department reads and membership updates enforce the authenticated user's college boundary.
 - College and department creation require the admin role.
 
+## Bucket C Decisions
+
+- Announcements use a tenant and optional department reference, plus a required creator reference.
+- Feed visibility is limited to college-wide announcements and the authenticated user's department.
+- Feed pagination defaults to 10 items and is capped at 50 items.
+- Faculty can delete only their own announcements; admins can delete announcements in their college.
+
 ## Current Work
 
-- Bucket C: Announcement system
+- Bucket D: Poster upload system
 
 ## Memory Rule
 

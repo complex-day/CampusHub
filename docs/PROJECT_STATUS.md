@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Bucket C: Announcement System
+Bucket D: Poster Upload System
 
 ## Completed
 
@@ -13,19 +13,20 @@ Bucket C: Announcement System
 - Registration, login, logout, JWT verification, and protected session endpoint implemented.
 - Authentication tests AUTH-001 through AUTH-005 added.
 - College Management, Department Management, and Role-Based Access Control implemented.
+- Announcement System implemented with faculty/admin publishing, tenant-scoped feeds, department targeting, pagination, and deletion permissions.
 
 ## Current Task
 
-Announcement schema and API.
+Poster upload schema and API.
 
 ## Validation
 
-- `npm test` passes: AUTH-001 through AUTH-005 and Bucket B route tests.
+- `npm test` passes: AUTH-001 through AUTH-005, Bucket B route tests, and ANN-001 through ANN-007.
 - `npm run build` passes: backend TypeScript compiles successfully.
 
 ## Next Task
 
-Implement the announcement schema and API: ANN-001 through ANN-004.
+Implement the poster upload system: UPLOAD-001 through UPLOAD-005.
 
 ## Blocked
 
@@ -47,3 +48,16 @@ None.
 ## Next Bucket
 
 Bucket C - Announcement System
+
+## Completed
+
+- Foundation
+- Authentication
+- College Management
+- Department Management
+- Role System
+- Announcement System
+
+## Next Bucket
+
+Bucket D - Poster Upload System

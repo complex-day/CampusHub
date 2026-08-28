@@ -30,6 +30,7 @@ export type AuthTokenPayload = {
   userId: string;
   collegeId: string;
   role: "student" | "faculty" | "admin";
+  departmentId?: string;
 };
 
 function toPublicUser(user: any): AuthUser {
@@ -66,7 +67,12 @@ export async function login(input: unknown): Promise<{ user: AuthUser; token: st
   }
 
   const token = jwt.sign(
-    { userId: String(user._id), collegeId: String(user.collegeId), role: user.role } satisfies AuthTokenPayload,
+    {
+      userId: String(user._id),
+      collegeId: String(user.collegeId),
+      role: user.role,
+      ...(user.departmentId ? { departmentId: String(user.departmentId) } : {})
+    } satisfies AuthTokenPayload,
     config.jwtSecret,
     { expiresIn: "1d" }
   );
