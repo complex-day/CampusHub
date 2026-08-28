@@ -6,6 +6,7 @@ export default function AnnouncementCard({ announcement }) {
         <time dateTime={announcement.createdAt}>{new Date(announcement.createdAt).toLocaleDateString()}</time>
       </div>
       <h2>{announcement.title}</h2>
+      {announcement.posterUrl && <img src={announcement.posterUrl} alt={`${announcement.title} poster`} loading="lazy" />}
       <p>{announcement.description}</p>
       <small>Published by {announcement.createdBy}</small>
     </article>

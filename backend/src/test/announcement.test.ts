@@ -23,8 +23,9 @@ describe("announcement system", () => {
     vi.spyOn(College, "exists").mockResolvedValue({ _id: collegeId } as any);
     vi.spyOn(User, "findOne").mockReturnValue({ lean: vi.fn().mockResolvedValue({ _id: userId, collegeId }) } as any);
     vi.spyOn(Announcement, "create").mockResolvedValue({ _id: "announcement-1", title: "Notice" } as any);
-    const response = await request(app).post("/api/announcements").set("Authorization", `Bearer ${auth("faculty")}`).send({ title: "Notice", description: "Details", collegeId });
+    const response = await request(app).post("/api/announcements").set("Authorization", `Bearer ${auth("faculty")}`).send({ title: "Notice", description: "Details", posterUrl: "https://res.cloudinary.com/demo/poster.png", collegeId });
     expect(response.status).toBe(201);
+    expect(Announcement.create).toHaveBeenCalledWith(expect.objectContaining({ posterUrl: "https://res.cloudinary.com/demo/poster.png" }));
   });
 
   it.each([{ title: "", description: "Details" }, { title: "Notice", description: "" }])("ANN-002/003 rejects empty announcement fields", async (body) => {

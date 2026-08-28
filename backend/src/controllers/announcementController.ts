@@ -9,6 +9,7 @@ import { User } from "../models/user.model.js";
 const announcementInputSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().min(1).max(10000),
+  posterUrl: z.string().url().max(2048).optional().nullable(),
   collegeId: z.string().refine(isValidObjectId, "Invalid college id"),
   departmentId: z.string().refine(isValidObjectId, "Invalid department id").nullable().optional()
 });

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import PosterUpload from "./PosterUpload";
 
 export default function CreateAnnouncementForm({ collegeId, departments = [], onCreated }) {
-  const [form, setForm] = useState({ title: "", description: "", departmentId: "" });
+  const [form, setForm] = useState({ title: "", description: "", departmentId: "", posterUrl: "" });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -16,11 +17,11 @@ export default function CreateAnnouncementForm({ collegeId, departments = [], on
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ ...form, collegeId, departmentId: form.departmentId || null })
+        body: JSON.stringify({ ...form, collegeId, departmentId: form.departmentId || null, posterUrl: form.posterUrl || null })
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || "Unable to publish announcement");
-      setForm({ title: "", description: "", departmentId: "" });
+      setForm({ title: "", description: "", departmentId: "", posterUrl: "" });
       onCreated(body.announcement);
     } catch (submitError) {
       setError(submitError.message);
@@ -38,6 +39,7 @@ export default function CreateAnnouncementForm({ collegeId, departments = [], on
         <option value="">College-wide</option>
         {departments.map((department) => <option key={department._id} value={department._id}>{department.name}</option>)}
       </select>
+      <PosterUpload disabled={saving} onUploaded={(posterUrl) => setForm({ ...form, posterUrl })} />
       {error && <p role="alert">{error}</p>}
       <button type="submit" disabled={saving}>{saving ? "Publishing..." : "Publish"}</button>
     </form>

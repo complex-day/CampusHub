@@ -58,7 +58,14 @@
 
 ## Current Work
 
-- Bucket D: Poster upload system
+- Bucket E: Event Management API
+
+## Bucket D Decisions
+
+- Poster uploads use Multer memory storage so extension, MIME, size, and image signature/content checks happen before Cloudinary receives bytes.
+- `POST /api/uploads/poster` requires authentication and the faculty or admin role, and returns `{ posterUrl }` after Cloudinary upload.
+- Supported poster formats are JPG, JPEG, PNG, and WebP; the maximum upload size is 5MB.
+- Announcements keep an optional validated `posterUrl`; the existing announcement creation and feed APIs remain compatible with requests that omit it.
 
 ## Memory Rule
 

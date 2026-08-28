@@ -4,6 +4,7 @@ const announcementSchema = new Schema(
   {
     title: { type: String, required: true, trim: true, minlength: 1, maxlength: 200 },
     description: { type: String, required: true, trim: true, minlength: 1, maxlength: 10000 },
+    posterUrl: { type: String, trim: true, maxlength: 2048 },
     collegeId: { type: Schema.Types.ObjectId, ref: "College", required: true },
     departmentId: { type: Schema.Types.ObjectId, ref: "Department", default: null },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },

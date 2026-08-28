@@ -11,5 +11,10 @@ export const config = {
   mongoUri: process.env.MONGODB_URI ?? "mongodb://127.0.0.1:27017/campushub",
   jwtSecret: requiredSecret ?? "development-only-secret-change-me",
   clientOrigin: process.env.CLIENT_ORIGIN ?? "http://localhost:3000",
-  nodeEnv: process.env.NODE_ENV ?? "development"
+  nodeEnv: process.env.NODE_ENV ?? "development",
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME ?? "",
+    apiKey: process.env.CLOUDINARY_API_KEY ?? "",
+    apiSecret: process.env.CLOUDINARY_API_SECRET ?? ""
+  }
 } as const;

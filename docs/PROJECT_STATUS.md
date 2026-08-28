@@ -17,20 +17,30 @@ Bucket D: Poster Upload System
 
 ## Current Task
 
-Poster upload schema and API.
+Bucket D poster upload system completed.
 
 ## Validation
 
 - `npm test` passes: AUTH-001 through AUTH-005, Bucket B route tests, and ANN-001 through ANN-007.
 - `npm run build` passes: backend TypeScript compiles successfully.
+- Focused upload tests pass: UPLOAD-001 through UPLOAD-005 plus authorization coverage.
+- Announcement regression tests pass with optional `posterUrl` coverage.
+- Full suite passes: 25 tests across 4 files.
 
 ## Next Task
 
-Implement the poster upload system: UPLOAD-001 through UPLOAD-005.
+Implement the Event Management API (Bucket E).
 
 ## Blocked
 
 None.
+
+## Bucket D Completion
+
+- Added authenticated faculty/admin `POST /api/uploads/poster`.
+- Added Cloudinary configuration and validated image upload service.
+- Supported `.jpg`, `.jpeg`, `.png`, and `.webp` with matching MIME types, content checks, and a 5MB limit.
+- Added optional announcement `posterUrl` persistence and upload-first frontend flow.
 
 ## Known Assumptions
 
