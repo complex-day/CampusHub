@@ -18,6 +18,7 @@ const eventSchema = new Schema(
 
 eventSchema.index({ collegeId: 1, eventDate: 1 });
 eventSchema.index({ collegeId: 1, departmentId: 1, eventDate: 1 });
+eventSchema.index({ title: "text", description: "text" });
 
 export type EventDocument = InferSchemaType<typeof eventSchema>;
 export const Event = model("Event", eventSchema);

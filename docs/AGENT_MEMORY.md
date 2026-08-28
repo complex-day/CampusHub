@@ -58,7 +58,7 @@
 
 ## Current Work
 
-- Bucket F: Search System
+- Bucket G: Security & Hardening
 
 ## Bucket D Decisions
 
@@ -74,6 +74,13 @@
 - Faculty can edit or delete only their own events. Admins can manage any event in their college. Client college IDs are checked but never used to widen tenant scope.
 - Event feeds filter future dates and sort by `eventDate` ascending. Compound indexes support college/date and college/department/date access.
 - Event creation reuses the existing `/api/uploads/poster` flow and does not introduce another upload system.
+
+## Bucket F Decisions
+
+- Search is exposed at authenticated `GET /api/search?q=keyword`; the query is trimmed, required, limited to 100 characters, and never accepts client tenant scope.
+- Announcement and Event each have a text index over `title` and `description`; the dedicated search service applies college and department visibility filters to both models.
+- Search returns at most 20 results per collection, sorted by MongoDB text relevance with `createdAt` as the tie-breaker. Text-search failures return a generic 500 response.
+- The frontend search page uses the existing credentialed fetch convention and links results to announcement and event detail routes.
 
 ## Memory Rule
 

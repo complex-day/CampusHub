@@ -10,6 +10,7 @@ import { userRouter } from "./routes/userRoutes.js";
 import { announcementRouter } from "./routes/announcementRoutes.js";
 import { uploadRouter } from "./routes/uploadRoutes.js";
 import { eventRouter } from "./routes/eventRoutes.js";
+import { searchRouter } from "./routes/searchRoutes.js";
 
 export const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/users", userRouter);
 app.use("/api/announcements", announcementRouter);
 app.use("/api/uploads", uploadRouter);
 app.use("/api/events", eventRouter);
+app.use("/api/search", searchRouter);
 app.get("/api/me", requireAuth, (request, response) => {
   response.json({ auth: (request as typeof request & { auth?: unknown }).auth });
 });

@@ -15,6 +15,7 @@ const announcementSchema = new Schema(
 );
 
 announcementSchema.index({ collegeId: 1, departmentId: 1, createdAt: -1 });
+announcementSchema.index({ title: "text", description: "text" });
 
 export type AnnouncementDocument = InferSchemaType<typeof announcementSchema>;
 export const Announcement = model("Announcement", announcementSchema);
