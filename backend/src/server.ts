@@ -31,15 +31,15 @@ export async function startServer(): Promise<HttpServer> {
 
 export async function bootstrap(
   start: () => Promise<HttpServer> = startServer,
-  onFailure: () => void = () => {
-    console.error("database_startup_failed");
+  onFailure: (error?: unknown) => void = (error) => {
+    console.error("database_startup_failed:", error instanceof Error ? error.message : error);
     process.exitCode = 1;
   }
 ): Promise<void> {
   try {
     await start();
-  } catch {
-    onFailure();
+  } catch (error) {
+    onFailure(error);
   }
 }
 
