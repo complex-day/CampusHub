@@ -12,29 +12,31 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  async function loadData() {
+    try {
+      const [eventResponse, meResponse, departmentsResponse] = await Promise.all([
+        fetch("/api/events", { credentials: "include" }),
+        fetch("/api/me", { credentials: "include" }),
+        fetch("/api/departments", { credentials: "include" }),
+      ]);
+      if (!eventResponse.ok) throw new Error("Unable to load events");
+      const eventData = await eventResponse.json();
+      const me = meResponse.ok ? await meResponse.json() : {};
+      const departmentData = departmentsResponse.ok ? await departmentsResponse.json() : {};
+      setEvents(eventData.events || []);
+      setAuth(me.auth || null);
+      setDepartments(departmentData.departments || []);
+    } catch (loadError) {
+      setError(loadError.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function load() {
-      try {
-        const [eventResponse, meResponse, departmentsResponse] = await Promise.all([
-          fetch("/api/events", { credentials: "include" }),
-          fetch("/api/me", { credentials: "include" }),
-          fetch("/api/departments", { credentials: "include" }),
-        ]);
-        if (!eventResponse.ok) throw new Error("Unable to load events");
-        const eventData = await eventResponse.json();
-        const me = meResponse.ok ? await meResponse.json() : {};
-        const departmentData = departmentsResponse.ok ? await departmentsResponse.json() : {};
-        setEvents(eventData.events || []);
-        setAuth(me.auth || null);
-        setDepartments(departmentData.departments || []);
-      } catch (loadError) {
-        setError(loadError.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    loadData();
   }, []);
 
   const filteredEvents = events.filter((ev) => {
@@ -50,9 +52,7 @@ export default function EventsPage() {
       <ToriiNav auth={auth} activeSection="events" />
 
       <main className="main-content main-content-with-sidebar">
-        {/* =========================================================================
-            UTSAV CAMPUS LIFE HEADER
-            ========================================================================= */}
+        {/* Header */}
         <section style={{ marginBottom: "32px", marginTop: "8px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px" }}>
             <div>
@@ -63,7 +63,18 @@ export default function EventsPage() {
                 Utsav Cultural & Tech Hub
               </h1>
             </div>
-            <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(!showCreateModal)}
+                className="btn-primary"
+                style={{ fontSize: "13px", padding: "8px 16px" }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                  add_circle
+                </span>
+                <span>{showCreateModal ? "Close Creator" : "Create Campus Event"}</span>
+              </button>
               <span
                 className="font-label-sm"
                 style={{
@@ -86,9 +97,21 @@ export default function EventsPage() {
           </div>
         </section>
 
-        {/* =========================================================================
-            FEATURED EVENT HERO BANNER
-            ========================================================================= */}
+        {/* Creator Studio Toggle */}
+        {showCreateModal && (
+          <section style={{ marginBottom: "32px" }}>
+            <CreateEventForm
+              collegeId={auth?.collegeId || "507f1f77bcf86cd799439011"}
+              departments={departments}
+              onCreated={(newEvent) => {
+                setEvents([newEvent, ...events]);
+                setShowCreateModal(false);
+              }}
+            />
+          </section>
+        )}
+
+        {/* Featured Event Hero Banner */}
         {featuredEvent && (
           <section
             className="card-surface"
@@ -166,24 +189,11 @@ export default function EventsPage() {
           </section>
         )}
 
-        {/* =========================================================================
-            FACULTY & ADMIN EVENT CREATION STUDIO
-            ========================================================================= */}
-        {auth && ["faculty", "admin"].includes(auth.role) && (
-          <CreateEventForm
-            collegeId={auth.collegeId}
-            departments={departments}
-            onCreated={(event) => setEvents([event, ...events])}
-          />
-        )}
-
-        {/* =========================================================================
-            EVENTS GALLERY & FEED
-            ========================================================================= */}
+        {/* Events Gallery & Feed */}
         <section>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", marginBottom: "24px" }}>
             <h2 className="font-headline-md" style={{ color: "var(--indigo-primary)", margin: 0 }}>
-              All Campus Events
+              All Campus Events ({filteredEvents.length})
             </h2>
 
             {/* Filter Tabs */}
@@ -248,20 +258,26 @@ export default function EventsPage() {
 
           {!loading && !error && filteredEvents.length === 0 && (
             <div className="card-surface" style={{ padding: "48px 24px", textAlign: "center" }}>
-              <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--sandstone-muted)", marginBottom: "8px" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--sandstone-muted)", marginBottom: "12px" }}>
                 celebration
               </span>
-              <p className="font-headline-sm" style={{ color: "var(--indigo-primary)", margin: 0 }}>
-                No events scheduled in this category.
-              </p>
-              <p className="font-body-sm" style={{ color: "var(--sandstone-muted)", marginTop: "4px" }}>
-                Check back soon for new club activities and campus fests.
+              <h3 className="font-headline-sm" style={{ color: "var(--indigo-primary)", margin: "0 0 6px 0" }}>
+                No events scheduled in this category yet.
+              </h3>
+              <p className="font-body-sm" style={{ color: "var(--sandstone-text)", maxWidth: "420px", margin: "0 auto 16px auto" }}>
+                Click the <strong>Create Campus Event</strong> button above to publish the first campus fest or hackathon!
               </p>
             </div>
           )}
 
-          {!loading && !error && filteredEvents.length > 0 && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }} aria-label="Event feed">
+          {!loading && filteredEvents.length > 0 && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                gap: "24px",
+              }}
+            >
               {filteredEvents.map((event) => (
                 <EventCard key={event._id} event={event} departments={departments} />
               ))}

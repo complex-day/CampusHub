@@ -1,6 +1,7 @@
 import { app } from "./app.js";
 import { config } from "./config.js";
 import { connectDatabase, disconnectDatabase } from "./db.js";
+import { seedInitialDataIfEmpty } from "./seed.js";
 
 type HttpServer = ReturnType<typeof app.listen>;
 
@@ -20,6 +21,7 @@ export function createShutdownHandler(
 
 export async function startServer(): Promise<HttpServer> {
   await connectDatabase();
+  await seedInitialDataIfEmpty();
   const server = app.listen(config.port, () => {
     console.log(`CampusHub API listening on port ${config.port}`);
   });

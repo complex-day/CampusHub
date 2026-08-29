@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import AnnouncementCard from "../../components/AnnouncementCard";
 import CreateAnnouncementForm from "../../components/CreateAnnouncementForm";
@@ -12,6 +13,7 @@ export default function AnnouncementsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const [showPublishModal, setShowPublishModal] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -50,9 +52,7 @@ export default function AnnouncementsPage() {
       <ToriiNav auth={auth} activeSection="home" />
 
       <main className="main-content main-content-with-sidebar">
-        {/* =========================================================================
-            AANGAN WELCOME HEADER (Ma & Breathing Room)
-            ========================================================================= */}
+        {/* Header */}
         <section style={{ marginBottom: "36px", marginTop: "8px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px" }}>
             <div>
@@ -63,33 +63,67 @@ export default function AnnouncementsPage() {
                 Your academic courtyard awaits.
               </h1>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <p className="font-label-md" style={{ color: "var(--sandstone-text)", marginBottom: "4px" }}>
-                Next Milestone
-              </p>
-              <p className="font-headline-sm" style={{ color: "var(--terracotta)", margin: 0 }}>
-                Midterms in 14 Days
-              </p>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <button
+                type="button"
+                onClick={() => setShowPublishModal(!showPublishModal)}
+                className="btn-primary"
+                style={{ fontSize: "13px", padding: "8px 16px" }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                  campaign
+                </span>
+                <span>{showPublishModal ? "Close Publisher" : "Publish Notice"}</span>
+              </button>
+              <div style={{ textAlign: "right" }}>
+                <p className="font-label-md" style={{ color: "var(--sandstone-text)", marginBottom: "4px" }}>
+                  Next Milestone
+                </p>
+                <p className="font-headline-sm" style={{ color: "var(--terracotta)", margin: 0 }}>
+                  Midterms in 14 Days
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* =========================================================================
-            BENTO GRID: TODAY'S PATH & ACADEMIC HEALTH
-            ========================================================================= */}
+        {/* Publish Notice Form */}
+        {showPublishModal && (
+          <section style={{ marginBottom: "32px" }}>
+            <CreateAnnouncementForm
+              collegeId={auth?.collegeId || "507f1f77bcf86cd799439011"}
+              departments={departments}
+              onCreated={(newAnnouncement) => {
+                setAnnouncements([newAnnouncement, ...announcements]);
+                setShowPublishModal(false);
+              }}
+            />
+          </section>
+        )}
+
+        {/* Bento Grid: Today's Path & Academic Health */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "24px", marginBottom: "36px" }}>
           {/* Today's Path Section */}
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <h2 className="font-headline-md" style={{ color: "var(--indigo-primary)", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
-              <span className="material-symbols-outlined" style={{ color: "var(--terracotta)" }}>
-                calendar_today
-              </span>
-              <span>Today's Path</span>
-            </h2>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 className="font-headline-md" style={{ color: "var(--indigo-primary)", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                <span className="material-symbols-outlined" style={{ color: "var(--terracotta)" }}>
+                  calendar_today
+                </span>
+                <span>Today's Path</span>
+              </h2>
+              <Link href="/academic" className="font-label-sm" style={{ color: "var(--terracotta)", fontWeight: 600 }}>
+                View All Lockers →
+              </Link>
+            </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "14px" }}>
               {/* Class 1 */}
-              <div className="card-surface" style={{ padding: "18px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "150px" }}>
+              <Link
+                href="/academic"
+                className="card-surface"
+                style={{ padding: "18px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "150px", textDecoration: "none" }}
+              >
                 <div>
                   <span className="font-label-sm" style={{ backgroundColor: "var(--bg-washi)", padding: "3px 8px", borderRadius: "4px", color: "var(--sandstone-text)", display: "inline-block", marginBottom: "8px" }}>
                     10:00 AM - 11:30 AM
@@ -100,12 +134,16 @@ export default function AnnouncementsPage() {
                 </div>
                 <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "10px", marginTop: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span className="font-body-sm" style={{ color: "var(--sandstone-text)" }}>Room 402, Block B</span>
-                  <span className="font-label-sm" style={{ color: "var(--indigo-dye)", fontWeight: 600 }}>Lecture</span>
+                  <span className="font-label-sm" style={{ color: "var(--indigo-dye)", fontWeight: 600 }}>Lecture (92%)</span>
                 </div>
-              </div>
+              </Link>
 
               {/* Class 2 */}
-              <div className="card-surface" style={{ padding: "18px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "150px" }}>
+              <Link
+                href="/academic"
+                className="card-surface"
+                style={{ padding: "18px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "150px", textDecoration: "none" }}
+              >
                 <div>
                   <span className="font-label-sm" style={{ backgroundColor: "var(--bg-washi)", padding: "3px 8px", borderRadius: "4px", color: "var(--sandstone-text)", display: "inline-block", marginBottom: "8px" }}>
                     2:00 PM - 3:30 PM
@@ -116,12 +154,12 @@ export default function AnnouncementsPage() {
                 </div>
                 <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "10px", marginTop: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span className="font-body-sm" style={{ color: "var(--sandstone-text)" }}>Studio 2, Design Wing</span>
-                  <span className="font-label-sm" style={{ color: "var(--ochre-warning)", fontWeight: 600 }}>Practical</span>
+                  <span className="font-label-sm" style={{ color: "var(--ochre-warning)", fontWeight: 600 }}>Practical (78%)</span>
                 </div>
-              </div>
+              </Link>
             </div>
 
-            {/* Urgent Task Card */}
+            {/* Task Card */}
             <div className="card-surface" style={{ padding: "18px", borderLeft: "4px solid var(--terracotta)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px", flexWrap: "wrap" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                 <div style={{ width: "40px", height: "40px", borderRadius: "50%", backgroundColor: "var(--error-container)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -138,9 +176,9 @@ export default function AnnouncementsPage() {
                   </p>
                 </div>
               </div>
-              <button className="btn-primary" style={{ fontSize: "12px", padding: "6px 14px" }}>
-                Resume Draft
-              </button>
+              <Link href="/academic" className="btn-primary" style={{ fontSize: "12px", padding: "6px 14px" }}>
+                Open Lockers
+              </Link>
             </div>
           </div>
 
@@ -154,17 +192,17 @@ export default function AnnouncementsPage() {
             </h2>
 
             {/* Health Metrics Card */}
-            <div className="card-surface" style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px" }}>
+            <Link href="/academic" className="card-surface" style={{ padding: "20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "24px", textDecoration: "none" }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "8px" }}>
                   <span className="font-label-md" style={{ color: "var(--sandstone-text)" }}>Overall Attendance</span>
-                  <span className="font-headline-md" style={{ color: "var(--indigo-primary)", margin: 0 }}>88%</span>
+                  <span className="font-headline-md" style={{ color: "var(--indigo-primary)", margin: 0 }}>88.4%</span>
                 </div>
                 <div style={{ width: "100%", height: "8px", backgroundColor: "var(--bg-washi)", borderRadius: "4px", overflow: "hidden" }}>
                   <div style={{ width: "88%", height: "100%", backgroundColor: "var(--sage-success)", borderRadius: "4px" }}></div>
                 </div>
                 <p className="font-body-sm" style={{ color: "var(--sandstone-text)", marginTop: "8px", margin: "8px 0 0 0" }}>
-                  ✓ Good standing. 0 classes shortfall.
+                  ✓ Safe standing. +6 buffer classes across 4 subjects.
                 </p>
               </div>
 
@@ -179,7 +217,7 @@ export default function AnnouncementsPage() {
                   <span className="font-body-sm" style={{ color: "var(--sandstone-text)", fontWeight: 500 }}>Top 15%</span>
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Saarthi Daily Insight */}
             <div className="card-surface" style={{ padding: "18px", backgroundColor: "var(--surface-high)", border: "1px solid rgba(61, 78, 107, 0.15)" }}>
@@ -192,39 +230,26 @@ export default function AnnouncementsPage() {
                 </span>
               </div>
               <p className="font-body-sm" style={{ color: "var(--sandstone-text)", margin: "0 0 12px 0", lineHeight: 1.5 }}>
-                Based on your study patterns, morning hours are optimal for analytical concepts. Consider reviewing "Data Structures" at 9 AM tomorrow.
+                Based on your study patterns, morning hours are optimal for analytical concepts. Review "Advanced Algorithms" at 10 AM.
               </p>
-              <span className="font-label-sm" style={{ color: "var(--indigo-dye)", fontWeight: 600 }}>
-                Schedule synced with Pathshala
-              </span>
+              <Link href="/academic" className="font-label-sm" style={{ color: "var(--indigo-dye)", fontWeight: 600 }}>
+                Synced with Pathshala Hub →
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* =========================================================================
-            FACULTY & ADMIN ANNOUNCEMENT PUBLISHER
-            ========================================================================= */}
-        {auth && ["faculty", "admin"].includes(auth.role) && (
-          <CreateAnnouncementForm
-            collegeId={auth.collegeId}
-            departments={departments}
-            onCreated={(announcement) => setAnnouncements([announcement, ...announcements])}
-          />
-        )}
-
-        {/* =========================================================================
-            CAMPUS NOTICES & ANNOUNCEMENT FEED
-            ========================================================================= */}
+        {/* Notices & Campus Pulse */}
         <section style={{ marginTop: "32px", borderTop: "1px solid var(--border-subtle)", paddingTop: "28px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", marginBottom: "20px" }}>
             <h2 className="font-headline-md" style={{ color: "var(--indigo-primary)", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
-              <span className="material-symbols-outlined" style={{ color: "var(--sandstone-text)" }}>
+              <span className="material-symbols-outlined" style={{ color: "var(--terracotta)" }}>
                 campaign
               </span>
-              <span>Notices & Campus Pulse</span>
+              <span>Notices & Campus Pulse ({filteredAnnouncements.length})</span>
             </h2>
 
-            {/* Filter Tabs */}
+            {/* Filter Pills */}
             <div style={{ display: "flex", gap: "6px", backgroundColor: "var(--surface-lift)", padding: "4px", borderRadius: "6px", border: "1px solid var(--border-subtle)" }}>
               <button
                 onClick={() => setActiveFilter("all")}
@@ -268,11 +293,10 @@ export default function AnnouncementsPage() {
             </div>
           </div>
 
-          {/* Feed States */}
           {loading && (
             <div className="card-surface" style={{ padding: "36px", textAlign: "center" }}>
               <p className="font-body-md" style={{ color: "var(--sandstone-text)" }}>
-                Loading institutional circulars...
+                Opening the academic courtyard...
               </p>
             </div>
           )}
@@ -287,22 +311,22 @@ export default function AnnouncementsPage() {
 
           {!loading && !error && filteredAnnouncements.length === 0 && (
             <div className="card-surface" style={{ padding: "48px 24px", textAlign: "center" }}>
-              <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--sandstone-muted)", marginBottom: "8px" }}>
-                inbox
+              <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--sandstone-muted)", marginBottom: "12px" }}>
+                mark_email_read
               </span>
-              <p className="font-headline-sm" style={{ color: "var(--indigo-primary)", margin: 0 }}>
-                No announcements in this category yet.
-              </p>
-              <p className="font-body-sm" style={{ color: "var(--sandstone-muted)", marginTop: "4px" }}>
-                Your courtyard is serene and up to date.
+              <h3 className="font-headline-sm" style={{ color: "var(--indigo-primary)", margin: "0 0 6px 0" }}>
+                Courtyard is quiet right now.
+              </h3>
+              <p className="font-body-sm" style={{ color: "var(--sandstone-text)", maxWidth: "420px", margin: "0 auto 16px auto" }}>
+                No announcements in this category yet. Click <strong>Publish Notice</strong> above to broadcast the first circular!
               </p>
             </div>
           )}
 
-          {!loading && !error && filteredAnnouncements.length > 0 && (
-            <div aria-label="Announcement feed">
-              {filteredAnnouncements.map((announcement) => (
-                <AnnouncementCard key={announcement._id} announcement={announcement} />
+          {!loading && filteredAnnouncements.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {filteredAnnouncements.map((item) => (
+                <AnnouncementCard key={item._id} announcement={item} departments={departments} />
               ))}
             </div>
           )}

@@ -18,9 +18,9 @@ export default function SearchPage() {
       .catch(() => {});
   }, []);
 
-  async function submit(event) {
-    event.preventDefault();
-    if (!query.trim()) {
+  async function performSearch(searchTerm) {
+    const q = (searchTerm !== undefined ? searchTerm : query).trim();
+    if (!q) {
       setError("Enter a keyword to search.");
       setResults(null);
       return;
@@ -28,7 +28,7 @@ export default function SearchPage() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}`, { credentials: "include" });
+      const response = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { credentials: "include" });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || "Unable to search campus content");
       setResults(body);
@@ -38,6 +38,16 @@ export default function SearchPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function submit(event) {
+    event.preventDefault();
+    performSearch();
+  }
+
+  function handleChipClick(chipText) {
+    setQuery(chipText);
+    performSearch(chipText);
   }
 
   function clear() {
@@ -69,7 +79,7 @@ export default function SearchPage() {
             padding: "20px",
             display: "flex",
             flexDirection: "column",
-            gap: "12px",
+            gap: "14px",
           }}
         >
           <label htmlFor="campus-search" className="font-label-sm" style={{ color: "var(--sandstone-text)" }}>
@@ -81,10 +91,10 @@ export default function SearchPage() {
               value={query}
               maxLength={100}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="e.g. Midterms, DSP Lab, Hackathon, Fee Deadline..."
-              style={{ flex: 1, minWidth: "240px", fontSize: "16px" }}
+              placeholder="e.g. Midterms, Hackathon, Robotics, Library..."
+              style={{ flex: 1, minWidth: "240px", fontSize: "15px" }}
             />
-            <button type="submit" className="btn-primary" disabled={loading} style={{ height: "42px" }}>
+            <button type="submit" className="btn-primary" disabled={loading} style={{ height: "40px" }}>
               <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                 search
               </span>
@@ -98,6 +108,30 @@ export default function SearchPage() {
             >
               Clear
             </button>
+          </div>
+
+          {/* Quick Search Suggestion Chips */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", paddingTop: "4px" }}>
+            <span className="font-label-sm" style={{ color: "var(--sandstone-muted)" }}>
+              Popular searches:
+            </span>
+            {["Hackathon", "Midterms", "Robotics", "Symposium", "Library"].map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                onClick={() => handleChipClick(chip)}
+                className="btn-ghost"
+                style={{
+                  fontSize: "11px",
+                  padding: "3px 10px",
+                  backgroundColor: "var(--surface-high)",
+                  borderRadius: "14px",
+                  border: "1px solid var(--border-subtle)",
+                }}
+              >
+                {chip}
+              </button>
+            ))}
           </div>
         </form>
 

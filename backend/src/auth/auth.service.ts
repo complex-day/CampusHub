@@ -33,6 +33,8 @@ export type AuthUser = {
 
 export type AuthTokenPayload = {
   userId: string;
+  name: string;
+  email: string;
   collegeId: string;
   role: "student" | "faculty" | "admin";
   departmentId?: string;
@@ -40,6 +42,8 @@ export type AuthTokenPayload = {
 
 const tokenSchema = z.object({
   userId: z.string().min(1),
+  name: z.string().optional().default("Student"),
+  email: z.string().optional().default(""),
   collegeId: z.string().min(1),
   role: z.enum(["student", "faculty", "admin"]),
   departmentId: z.string().min(1).optional()
@@ -105,6 +109,8 @@ export async function login(input: unknown): Promise<{ user: AuthUser; token: st
   const token = jwt.sign(
     {
       userId: String(user._id),
+      name: user.name,
+      email: user.email,
       collegeId: String(user.collegeId),
       role: user.role,
       ...(user.departmentId ? { departmentId: String(user.departmentId) } : {})

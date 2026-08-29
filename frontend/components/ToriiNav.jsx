@@ -215,7 +215,7 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
               letterSpacing: "0.02em",
             }}
           >
-            {auth ? `Logged in: ${auth.name} (${auth.role})` : "Apex Institute of Technology"}
+            {auth ? `Logged in: ${auth.name || "Student"} (${auth.role || "student"})` : "Apex Institute of Technology"}
           </span>
         </div>
 
