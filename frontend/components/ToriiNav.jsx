@@ -23,17 +23,21 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
     }
   }, []);
 
-  function toggleDesktopSidebar() {
-    setSidebarOpen((prev) => {
-      const nextState = !prev;
-      localStorage.setItem("campushub_sidebar_open", String(nextState));
-      if (nextState) {
-        document.body.classList.remove("sidebar-closed");
-      } else {
-        document.body.classList.add("sidebar-closed");
-      }
-      return nextState;
-    });
+  function handleUnifiedToggle() {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setMobileDrawerOpen((prev) => !prev);
+    } else {
+      setSidebarOpen((prev) => {
+        const nextState = !prev;
+        localStorage.setItem("campushub_sidebar_open", String(nextState));
+        if (nextState) {
+          document.body.classList.remove("sidebar-closed");
+        } else {
+          document.body.classList.add("sidebar-closed");
+        }
+        return nextState;
+      });
+    }
   }
 
   const navItems = [
@@ -76,11 +80,11 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
       )}
 
       {/* =========================================================================
-          DESKTOP & MOBILE COLLAPSIBLE SIDEBAR DOCK
+          COLLAPSIBLE SIDEBAR DOCK (Clean, 0 Extra Buttons)
           ========================================================================= */}
       <aside className={`torii-desktop-sidebar ${mobileDrawerOpen ? "mobile-open" : ""}`}>
-        {/* Brand Header with Close / Collapse Toggle */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 4px 20px 4px", borderBottom: "1px solid var(--border-subtle)", marginBottom: "16px" }}>
+        {/* Brand Header */}
+        <div style={{ padding: "0 8px 20px 8px", borderBottom: "1px solid var(--border-subtle)", marginBottom: "16px" }}>
           <Link href="/" style={{ textDecoration: "none", color: "inherit" }} onClick={() => setMobileDrawerOpen(false)}>
             <span
               className="font-headline-md"
@@ -101,32 +105,6 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
               Academic Sanctuary
             </span>
           </Link>
-
-          {/* Desktop Collapse Button */}
-          <button
-            type="button"
-            onClick={toggleDesktopSidebar}
-            className="btn-ghost hide-on-mobile"
-            title="Collapse sidebar"
-            style={{ padding: "4px", color: "var(--sandstone-muted)", borderRadius: "4px" }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
-              left_panel_close
-            </span>
-          </button>
-
-          {/* Mobile Close Button */}
-          <button
-            type="button"
-            onClick={() => setMobileDrawerOpen(false)}
-            className="btn-ghost hide-on-desktop"
-            title="Close menu"
-            style={{ padding: "4px", color: "var(--sandstone-text)", borderRadius: "4px" }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
-              close
-            </span>
-          </button>
         </div>
 
         {/* Primary Navigation Items */}
@@ -275,44 +253,29 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
       </aside>
 
       {/* =========================================================================
-          TOP UTILITY APP BAR (Includes Sidebar Open / Toggle Button)
+          TOP UTILITY APP BAR (Includes Exactly ONE Sidebar Toggle Button)
           ========================================================================= */}
       <header className="torii-topbar">
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {/* Desktop Toggle Button */}
+          {/* THE SINGLE UNIFIED TOGGLE BUTTON */}
           <button
             type="button"
-            onClick={toggleDesktopSidebar}
-            className="btn-ghost hide-on-mobile"
-            title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+            onClick={handleUnifiedToggle}
+            className="btn-ghost"
+            title="Toggle Sidebar"
             style={{
-              padding: "6px 8px",
+              padding: "6px 10px",
               border: "1px solid var(--border-subtle)",
               borderRadius: "6px",
               backgroundColor: "#FFFFFF",
               color: "var(--indigo-primary)",
-              display: "inline-flex",
+              display: "flex",
               alignItems: "center",
-              gap: "6px",
+              justifyContent: "center",
+              cursor: "pointer",
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
-              {sidebarOpen ? "menu_open" : "menu"}
-            </span>
-            <span className="font-label-sm" style={{ fontWeight: 600 }}>
-              {sidebarOpen ? "Collapse" : "Menu"}
-            </span>
-          </button>
-
-          {/* Mobile Hamburger Button */}
-          <button
-            type="button"
-            onClick={() => setMobileDrawerOpen(true)}
-            className="btn-ghost hide-on-desktop"
-            title="Open navigation menu"
-            style={{ padding: "6px 8px", border: "1px solid var(--border-subtle)", borderRadius: "6px", backgroundColor: "#FFFFFF" }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "20px", color: "var(--indigo-primary)" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>
               menu
             </span>
           </button>
@@ -480,7 +443,6 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
             flexDirection: "column",
           }}
         >
-          {/* Saarthi Header */}
           <div
             style={{
               padding: "14px 18px",
@@ -506,14 +468,12 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
             </button>
           </div>
 
-          {/* Saarthi Mock Chat Body */}
           <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "12px", maxHeight: "280px", overflowY: "auto", fontSize: "13px" }}>
             <div style={{ padding: "10px 14px", backgroundColor: "var(--bg-washi)", borderRadius: "8px", color: "var(--text-primary)", lineHeight: 1.5 }}>
               Namaste {auth?.name || "Scholar"}. I am your academic guide. You can ask me about midterm exam schedules, club events, or your attendance buffers.
             </div>
           </div>
 
-          {/* Saarthi Input */}
           <div style={{ padding: "12px", borderTop: "1px solid var(--border-subtle)", display: "flex", gap: "8px" }}>
             <input
               type="text"
