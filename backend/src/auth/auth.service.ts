@@ -1,7 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { isValidObjectId } from "mongoose";
 import { z } from "zod";
 import { config } from "../config.js";
+import { College } from "../models/college.model.js";
 import { User } from "../models/user.model.js";
 import { sanitizeText } from "../middleware/securityMiddleware.js";
 
@@ -63,8 +65,32 @@ export async function register(input: unknown): Promise<AuthUser> {
     throw new Error("EMAIL_ALREADY_REGISTERED");
   }
 
+  let finalCollegeId = data.collegeId;
+  if (!isValidObjectId(finalCollegeId)) {
+    // Attempt resolving college by name
+    const collegeByName = await College.findOne({
+      name: { $regex: new RegExp(`^${data.collegeId.trim()}$`, "i") }
+    }).lean();
+
+    if (collegeByName) {
+      finalCollegeId = String(collegeByName._id);
+    } else {
+      // Find the first college or create a default one
+      const firstCollege = await College.findOne().lean();
+      if (firstCollege) {
+        finalCollegeId = String(firstCollege._id);
+      } else {
+        const newCollege = await College.create({
+          name: data.collegeId.trim() || "Apex Institute of Technology",
+          description: "Primary Campus Workspace"
+        });
+        finalCollegeId = String(newCollege._id);
+      }
+    }
+  }
+
   const passwordHash = await bcrypt.hash(data.password, 12);
-  const user = await User.create({ ...data, email, passwordHash });
+  const user = await User.create({ ...data, email, passwordHash, collegeId: finalCollegeId });
   return toPublicUser(user);
 }
 

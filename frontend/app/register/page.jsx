@@ -12,7 +12,7 @@ export default function RegisterPage() {
     email: "",
     password: "",
     role: "student",
-    collegeId: "507f1f77bcf86cd799439011",
+    collegeId: "Apex Institute of Technology",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -35,15 +35,28 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
 
-    // Client-side quick check
-    if (form.email.includes(".@") || !form.email.includes("@")) {
-      setError("Please check your email format (e.g. student@edux.com). Notice there cannot be a dot directly before the @.");
+    // Client-side validation checks
+    const trimmedEmail = form.email.trim();
+    if (trimmedEmail.includes(".@") || !trimmedEmail.includes("@")) {
+      setError("Please check your email format. Ensure there is no dot directly before the @ symbol.");
       setLoading(false);
       return;
     }
 
-    if (form.password.length < 8 || !/[A-Z]/.test(form.password) || !/[0-9]/.test(form.password)) {
-      setError("Password must be at least 8 characters long and contain at least 1 uppercase letter (A-Z) and 1 number (0-9).");
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      setLoading(false);
+      return;
+    }
+
+    if (!/[A-Z]/.test(form.password)) {
+      setError("Password must contain at least one uppercase letter (A-Z).");
+      setLoading(false);
+      return;
+    }
+
+    if (!/[0-9]/.test(form.password)) {
+      setError("Password must contain at least one number (0-9).");
       setLoading(false);
       return;
     }
@@ -55,7 +68,7 @@ export default function RegisterPage() {
         credentials: "include",
         body: JSON.stringify({
           name: form.name.trim(),
-          email: form.email.trim(),
+          email: trimmedEmail,
           password: form.password,
           role: form.role,
           collegeId: form.collegeId,
@@ -68,15 +81,15 @@ export default function RegisterPage() {
           const detailMessages = body.details.map((d) => `${d.path?.join(".") || "field"}: ${d.message}`).join(", ");
           throw new Error(detailMessages || body.error);
         }
-        throw new Error(body.error || "Registration failed. Please check your details.");
+        throw new Error(body.error || "Registration failed. Please verify your details.");
       }
 
-      // Auto login after registration
+      // Auto login after successful registration
       const loginRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email: form.email.trim(), password: form.password }),
+        body: JSON.stringify({ email: trimmedEmail, password: form.password }),
       });
 
       if (loginRes.ok) {
@@ -178,9 +191,6 @@ export default function RegisterPage() {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
-            <span className="font-label-sm" style={{ color: "var(--sandstone-muted)", fontSize: "10px", marginTop: "2px", display: "block" }}>
-              Must be a valid format without trailing dots before the @
-            </span>
           </div>
 
           <div>
@@ -195,7 +205,7 @@ export default function RegisterPage() {
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
             <span className="font-label-sm" style={{ color: "var(--sandstone-muted)", fontSize: "10px", marginTop: "2px", display: "block" }}>
-              Example: Raja#2026 or Campus2026
+              Must include at least 1 uppercase letter and 1 number (e.g. Raja#2026)
             </span>
           </div>
 
@@ -215,7 +225,7 @@ export default function RegisterPage() {
 
             <div>
               <label className="font-label-sm" style={{ color: "var(--sandstone-text)", display: "block", marginBottom: "4px" }}>
-                College Identifier
+                College
               </label>
               {colleges.length > 0 ? (
                 <select
@@ -232,7 +242,7 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   required
-                  placeholder="College ID"
+                  placeholder="e.g. Apex Institute"
                   value={form.collegeId}
                   onChange={(e) => setForm({ ...form, collegeId: e.target.value })}
                 />
