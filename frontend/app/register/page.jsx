@@ -12,7 +12,7 @@ export default function RegisterPage() {
     email: "",
     password: "",
     role: "student",
-    collegeId: "",
+    collegeId: "507f1f77bcf86cd799439011",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -35,20 +35,56 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
 
+    // Client-side quick check
+    if (form.email.includes(".@") || !form.email.includes("@")) {
+      setError("Please check your email format (e.g. student@edux.com). Notice there cannot be a dot directly before the @.");
+      setLoading(false);
+      return;
+    }
+
+    if (form.password.length < 8 || !/[A-Z]/.test(form.password) || !/[0-9]/.test(form.password)) {
+      setError("Password must be at least 8 characters long and contain at least 1 uppercase letter (A-Z) and 1 number (0-9).");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          password: form.password,
+          role: form.role,
+          collegeId: form.collegeId,
+        }),
       });
 
       const body = await res.json();
       if (!res.ok) {
+        if (body.details && Array.isArray(body.details) && body.details.length > 0) {
+          const detailMessages = body.details.map((d) => `${d.path?.join(".") || "field"}: ${d.message}`).join(", ");
+          throw new Error(detailMessages || body.error);
+        }
         throw new Error(body.error || "Registration failed. Please check your details.");
       }
 
-      router.push("/announcements");
+      // Auto login after registration
+      const loginRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: form.email.trim(), password: form.password }),
+      });
+
+      if (loginRes.ok) {
+        router.push("/announcements");
+        window.location.reload();
+      } else {
+        router.push("/login");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -109,6 +145,7 @@ export default function RegisterPage() {
               color: "var(--error-crimson)",
               fontSize: "13px",
               border: "1px solid rgba(186, 26, 26, 0.2)",
+              lineHeight: 1.4,
             }}
             role="alert"
           >
@@ -116,7 +153,7 @@ export default function RegisterPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           <div>
             <label className="font-label-sm" style={{ color: "var(--sandstone-text)", display: "block", marginBottom: "4px" }}>
               Full Name
@@ -124,7 +161,7 @@ export default function RegisterPage() {
             <input
               type="text"
               required
-              placeholder="e.g. Rohan Varma"
+              placeholder="e.g. Raja Sharma"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
@@ -137,23 +174,29 @@ export default function RegisterPage() {
             <input
               type="email"
               required
-              placeholder="e.g. rohan.varma@campus.apex.edu"
+              placeholder="e.g. raja@campus.apex.edu"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
+            <span className="font-label-sm" style={{ color: "var(--sandstone-muted)", fontSize: "10px", marginTop: "2px", display: "block" }}>
+              Must be a valid format without trailing dots before the @
+            </span>
           </div>
 
           <div>
             <label className="font-label-sm" style={{ color: "var(--sandstone-text)", display: "block", marginBottom: "4px" }}>
-              Password (Min 8 chars, 1 uppercase, 1 number)
+              Password
             </label>
             <input
               type="password"
               required
-              placeholder="Create a strong password"
+              placeholder="Min 8 chars, 1 uppercase, 1 number"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
+            <span className="font-label-sm" style={{ color: "var(--sandstone-muted)", fontSize: "10px", marginTop: "2px", display: "block" }}>
+              Example: Raja#2026 or Campus2026
+            </span>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
@@ -172,7 +215,7 @@ export default function RegisterPage() {
 
             <div>
               <label className="font-label-sm" style={{ color: "var(--sandstone-text)", display: "block", marginBottom: "4px" }}>
-                College
+                College Identifier
               </label>
               {colleges.length > 0 ? (
                 <select

@@ -8,15 +8,16 @@ import { sanitizeText } from "../middleware/securityMiddleware.js";
 const safeText = (min: number, max: number) => z.string().trim().min(min).max(max).transform(sanitizeText);
 export const registerSchema = z.object({
   name: safeText(2, 100),
-  email: z.string().trim().email(),
-  password: z.string().min(8).max(128).regex(/[a-z]/, "Password must contain a lowercase letter").regex(/[A-Z]/, "Password must contain an uppercase letter").regex(/[0-9]/, "Password must contain a number"),
+  email: z.string().trim().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(128).regex(/[a-z]/, "Password must contain a lowercase letter").regex(/[A-Z]/, "Password must contain an uppercase letter").regex(/[0-9]/, "Password must contain a number"),
   collegeId: z.string().trim().min(1).max(100),
-  departmentId: z.string().trim().min(1).max(100).optional()
+  departmentId: z.string().trim().min(1).max(100).optional(),
+  role: z.enum(["student", "faculty", "admin"]).optional().default("student")
 }).strict();
 
 export const loginSchema = z.object({
-  email: z.string().trim().email(),
-  password: z.string().min(1).max(128)
+  email: z.string().trim().email("Invalid email address"),
+  password: z.string().min(1, "Password is required").max(128)
 }).strict();
 
 export type AuthUser = {
