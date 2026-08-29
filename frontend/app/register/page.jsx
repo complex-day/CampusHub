@@ -11,8 +11,7 @@ export default function RegisterPage() {
     name: "",
     email: "",
     password: "",
-    role: "student",
-    collegeId: "Apex Institute of Technology",
+    collegeId: "507f1f77bcf86cd799439011",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -70,7 +69,6 @@ export default function RegisterPage() {
           name: form.name.trim(),
           email: trimmedEmail,
           password: form.password,
-          role: form.role,
           collegeId: form.collegeId,
         }),
       });
@@ -209,45 +207,30 @@ export default function RegisterPage() {
             </span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-            <div>
-              <label className="font-label-sm" style={{ color: "var(--sandstone-text)", display: "block", marginBottom: "4px" }}>
-                Role
-              </label>
+          <div>
+            <label className="font-label-sm" style={{ color: "var(--sandstone-text)", display: "block", marginBottom: "4px" }}>
+              College Workspace
+            </label>
+            {colleges.length > 0 ? (
               <select
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                value={form.collegeId}
+                onChange={(e) => setForm({ ...form, collegeId: e.target.value })}
               >
-                <option value="student">Student</option>
-                <option value="faculty">Faculty Member</option>
+                {colleges.map((col) => (
+                  <option key={col._id} value={col._id}>
+                    {col.name}
+                  </option>
+                ))}
               </select>
-            </div>
-
-            <div>
-              <label className="font-label-sm" style={{ color: "var(--sandstone-text)", display: "block", marginBottom: "4px" }}>
-                College
-              </label>
-              {colleges.length > 0 ? (
-                <select
-                  value={form.collegeId}
-                  onChange={(e) => setForm({ ...form, collegeId: e.target.value })}
-                >
-                  {colleges.map((col) => (
-                    <option key={col._id} value={col._id}>
-                      {col.name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Apex Institute"
-                  value={form.collegeId}
-                  onChange={(e) => setForm({ ...form, collegeId: e.target.value })}
-                />
-              )}
-            </div>
+            ) : (
+              <input
+                type="text"
+                required
+                placeholder="507f1f77bcf86cd799439011"
+                value={form.collegeId}
+                onChange={(e) => setForm({ ...form, collegeId: e.target.value })}
+              />
+            )}
           </div>
 
           <button
