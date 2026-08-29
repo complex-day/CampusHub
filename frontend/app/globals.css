@@ -260,7 +260,7 @@ textarea:focus {
 }
 
 /* ==========================================================================
-   RESPONSIVE TORII SHELL & LAYOUT ARCHITECTURE
+   RESPONSIVE COLLAPSIBLE TORII SHELL & LAYOUT ARCHITECTURE
    ========================================================================== */
 
 .app-shell {
@@ -269,7 +269,7 @@ textarea:focus {
   flex-direction: column;
 }
 
-/* Desktop Sidebar (Fixed 250px on left) */
+/* Desktop Sidebar (Collapsible on left) */
 .torii-desktop-sidebar {
   position: fixed;
   top: 0;
@@ -280,11 +280,16 @@ textarea:focus {
   border-right: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
-  z-index: 40;
+  padding: 20px 16px;
+  z-index: 50;
+  transition: transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Desktop Top Utility Bar */
+body.sidebar-closed .torii-desktop-sidebar {
+  transform: translateX(-260px);
+}
+
+/* Topbar Sticky Utility Header */
 .torii-topbar {
   position: sticky;
   top: 0;
@@ -297,6 +302,7 @@ textarea:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: margin-left 240ms cubic-bezier(0.4, 0, 0.2, 1), width 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Main Content Area */
@@ -306,10 +312,20 @@ textarea:focus {
   padding: 24px;
 }
 
+.main-content-with-sidebar {
+  transition: margin-left 240ms cubic-bezier(0.4, 0, 0.2, 1), width 240ms cubic-bezier(0.4, 0, 0.2, 1), max-width 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 @media (min-width: 1024px) {
   .torii-topbar {
     margin: 0 0 0 250px;
     width: calc(100% - 250px);
+    padding: 14px 40px;
+  }
+
+  body.sidebar-closed .torii-topbar {
+    margin: 0;
+    width: 100%;
     padding: 14px 40px;
   }
 
@@ -320,18 +336,39 @@ textarea:focus {
     max-width: calc(100% - 250px);
   }
 
+  body.sidebar-closed .main-content-with-sidebar {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 28px 48px 80px 48px;
+  }
+
   .torii-mobile-nav {
     display: none !important;
   }
 
-  .hide-on-desktop {
+  .mobile-drawer-backdrop {
     display: none !important;
   }
 }
 
 @media (max-width: 1023px) {
   .torii-desktop-sidebar {
-    display: none !important;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+  }
+
+  .torii-desktop-sidebar.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  .mobile-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    z-index: 45;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
 
   .torii-topbar {
@@ -358,7 +395,7 @@ textarea:focus {
     justify-content: space-around;
     align-items: center;
     padding: 8px 0 12px 0;
-    z-index: 50;
+    z-index: 40;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
   }
 
