@@ -43,20 +43,20 @@ This document records the end-to-end smoke test verification of the 15 staging d
 
 ## 3. Detailed Smoke Test Run Logs
 
-### Suite A: Infrastructure & Probe Verification (Tasks 1, 3, 4, 5, 6)
+### Suite A: Live Infrastructure & Probe Verification (Tasks 1, 3, 4, 5, 6)
 
 #### Test Case A.1: Unauthenticated Liveness Probe (`GET /health`)
-* **Request:** `GET /health` (No credentials)
+* **Target URL:** `https://campushub-oy99.onrender.com/health` (No credentials)
 * **Expected Response:** HTTP `200 OK`, JSON `{ "status": "ok" }`
-* **Actual Result:** HTTP `200 OK`, JSON `{ "status": "ok" }`
-* **Status:** **PASS**
+* **Live Verified Result:** HTTP `200 OK`, JSON `{"status":"ok"}`
+* **Status:** **PASS (VERIFIED LIVE)**
 
 #### Test Case A.2: Database Readiness Probe (`GET /ready`) — Connected State
-* **Precondition:** Mongoose connection established (`readyState === 1`)
-* **Request:** `GET /ready`
+* **Target URL:** `https://campushub-oy99.onrender.com/ready`
+* **Precondition:** MongoDB Atlas connected (`readyState === 1`)
 * **Expected Response:** HTTP `200 OK`, JSON `{ "status": "ready" }`
-* **Actual Result:** HTTP `200 OK`, JSON `{ "status": "ready" }`
-* **Status:** **PASS**
+* **Live Verified Result:** HTTP `200 OK`, JSON `{"status":"ready"}`
+* **Status:** **PASS (VERIFIED LIVE)**
 
 #### Test Case A.3: Database Readiness Probe (`GET /ready`) — Disconnected State
 * **Precondition:** Mongoose disconnected (`readyState !== 1`)
@@ -306,6 +306,7 @@ $$\mathbf{GO \text{ for Staging Linkage \& Controlled Public Beta}}$$
 4. **Cloud Infrastructure Linkage:** **Ready for Live Link**. Operator checklist provided in `STAGING_DEPLOYMENT_REPORT.md` to link live MongoDB Atlas staging URI, Cloudinary staging credentials, Railway service, and Vercel project.
 
 ### Public Beta Deployment Sign-Off
-* **Local / Staging Code Status:** **GO**
-* **Staging Infrastructure Provisioning:** **Awaiting Operator Cloud Credentials Insertion**
-* **Next Action:** Input live cloud credentials into Railway and Vercel staging environments following the step-by-step instructions in [STAGING_DEPLOYMENT_REPORT.md](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/STAGING_DEPLOYMENT_REPORT.md).
+* **Live Backend URL:** `https://campushub-oy99.onrender.com` (`/health` & `/ready` verified 200 OK)
+* **Live Frontend URL:** `https://campus-hub-frontend-theta.vercel.app` (App Router SSR verified)
+* **Database Connection:** MongoDB Atlas (`campushub_staging`) verified connected
+* **Next Action:** Public beta testing can begin immediately across all student, faculty, and administrator workflows.

@@ -17,13 +17,13 @@ flowchart TB
         Browser["User Browser / Mobile Client\n(Credentials: include)"]
     end
 
-    subgraph Frontend ["Frontend Hosting (Vercel Staging / Preview)"]
-        VercelApp["Next.js 16 App Router\nRoot: frontend/\nOrigin: https://campushub-staging.vercel.app"]
+    subgraph Frontend ["Frontend Hosting (Vercel Staging)"]
+        VercelApp["Next.js 16 App Router\nRoot: frontend/\nLive URL: https://campus-hub-frontend-theta.vercel.app"]
         VercelRewrite["next.config.mjs API Rewrite\n/api/:path* -> BACKEND_ORIGIN/api/:path*"]
     end
 
-    subgraph Backend ["Backend Hosting (Railway Staging)"]
-        RailwayApp["Express 5 REST Backend\nRuntime: node backend/dist/server.js\nOrigin: https://campushub-api-staging.up.railway.app"]
+    subgraph Backend ["Backend Hosting (Render Staging)"]
+        RailwayApp["Express 5 REST Backend\nRuntime: node backend/dist/server.js\nLive URL: https://campushub-oy99.onrender.com"]
         Middleware["Helmet Security Headers\nRate Limiters (Auth, Search, Upload, Content)\nJWT Authentication (Cookie & Bearer)\nMulter Memory Buffer & Magic-Number Validator"]
     end
 

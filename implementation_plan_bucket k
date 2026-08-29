@@ -1,0 +1,116 @@
+# Implementation Plan: Bucket K — Event RSVP System
+
+Convert **Utsav** from event discovery into full **event participation** by introducing a multi-tenant, role-aware Event RSVP & Passbook system.
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> The Event RSVP system adheres strictly to the existing **multi-tenant isolation** rules (`collegeId` boundary verified server-side), **JWT authentication middleware**, and **role system** (`student`, `faculty`, `admin`).
+> We will follow **TDD (Test-Driven Development)**: writing tests first in `backend/src/test/rsvp.test.ts` before implementing models, controllers, and routes.
+
+---
+
+## Proposed Changes
+
+### 1. Documentation Updates (`docs/`)
+
+#### [MODIFY] [PRD.md](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/docs/PRD.md)
+- Add **Section 11: Bucket K — Event RSVP & Campus Passes**:
+  - Problem statement (untracked event attendance, lack of pass proof).
+  - Feature requirements: 1-click RSVP, ticket generation, cancellations, attendee caps, passbook history, and faculty/admin attendee export.
+
+#### [MODIFY] [SYSTEM-DESIGN.md](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/docs/SYSTEM-DESIGN.md)
+- Add `EventRSVP` data model and schema definition.
+- Document RSVP architecture, state transitions (`confirmed` ↔ `cancelled`), and API route contracts.
+
+#### [MODIFY] [TDD.md](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/docs/TDD.md)
+- Add **Section 9: Bucket K — Event RSVP Tests (RSVP-001 through RSVP-010)**.
+
+#### [MODIFY] [PROJECT_STATUS.md](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/docs/PROJECT_STATUS.md)
+- Update current phase to **Bucket K: Event RSVP System**.
+
+#### [MODIFY] [AGENT_MEMORY.md](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/docs/AGENT_MEMORY.md)
+- Add **Bucket K Decisions** (compound uniqueness on `{ eventId, userId }`, ticket generation format, attendee aggregation).
+
+---
+
+### 2. Test Suite (Tests First) (`backend/src/test/`)
+
+#### [NEW] [rsvp.test.ts](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/test/rsvp.test.ts)
+- Comprehensive test coverage for:
+  - `RSVP-001`: Student RSVP success and unique ticket creation.
+  - `RSVP-002`: Duplicate RSVP prevention (idempotent / already confirmed check).
+  - `RSVP-003`: RSVP cancellation by student.
+  - `RSVP-004`: Multi-tenant isolation enforcement (blocking cross-college RSVPs).
+  - `RSVP-005`: Department visibility checking (blocking restricted dept events).
+  - `RSVP-006`: Past event RSVP rejection.
+  - `RSVP-007`: Live attendee counts on event list and event details.
+  - `RSVP-008`: Student passbook listing (`GET /api/me/passes`).
+  - `RSVP-009`: Admin / event creator attendee roster visibility (`GET /api/admin/events/:id/attendees`).
+  - `RSVP-010`: Unauthenticated request blocking.
+
+---
+
+### 3. Backend Implementation (`backend/src/`)
+
+#### [NEW] [eventRsvp.model.ts](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/models/eventRsvp.model.ts)
+- Define `eventRsvpSchema` with:
+  - `eventId`: ObjectId (ref: "Event", required, indexed)
+  - `userId`: ObjectId (ref: "User", required, indexed)
+  - `collegeId`: ObjectId (ref: "College", required, indexed)
+  - `status`: `"confirmed" | "cancelled"` (default: `"confirmed"`)
+  - `ticketNumber`: String (unique ticket format e.g. `PASS-{eventId.slice(-4)}-{random}`)
+  - `createdAt`, `updatedAt` timestamps
+- Indexes: `{ eventId: 1, userId: 1 }` (unique), `{ userId: 1, collegeId: 1, status: 1 }`, `{ eventId: 1, status: 1 }`.
+
+#### [NEW] [rsvpController.ts](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/controllers/rsvpController.ts)
+- `createOrUpdateRsvp`: Validates event exists, is future, belongs to user's college, and matches department visibility. Creates or activates RSVP with unique ticket.
+- `cancelRsvp`: Marks RSVP status as `cancelled`.
+- `getMyRsvps`: Lists user's active confirmed event passes populated with event metadata.
+- `getEventAttendees`: Accessible to admins and event creator faculty to view attendee list.
+
+#### [MODIFY] [eventRoutes.ts](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/routes/eventRoutes.ts)
+- Mount:
+  - `POST /api/events/:id/rsvp` -> `createOrUpdateRsvp`
+  - `DELETE /api/events/:id/rsvp` -> `cancelRsvp`
+  - `GET /api/events/:id/rsvp` -> `getRsvpStatus`
+
+#### [MODIFY] [userRoutes.ts](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/routes/userRoutes.ts)
+- Mount `GET /api/me/passes` -> `getMyRsvps`.
+
+#### [MODIFY] [adminRoutes.ts](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/routes/adminRoutes.ts)
+- Mount `GET /api/admin/events/:id/attendees` -> `getEventAttendees`.
+
+#### [MODIFY] [eventController.ts](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/controllers/eventController.ts)
+- Augment `listEvents` and `getEvent` to include aggregate `attendeeCount` and `userRsvpd: boolean`.
+
+---
+
+### 4. Frontend Integration (`frontend/`)
+
+#### [MODIFY] [EventCard.jsx](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/frontend/components/EventCard.jsx)
+- Connect RSVP button to call `POST /api/events/:id/rsvp` and `DELETE /api/events/:id/rsvp`.
+- Display live attendee count badge.
+
+#### [MODIFY] [events/[id]/page.jsx](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/frontend/app/events/%5Bid%5D/page.jsx)
+- Fetch and display live RSVP status, ticket number, and attendee count.
+
+#### [MODIFY] [passes/page.jsx](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/frontend/app/passes/page.jsx)
+- Fetch real passes from `GET /api/me/passes` and render live ticket cards with ticket numbers, event dates, and QR representations.
+
+---
+
+## Verification Plan
+
+### Automated Tests
+- Run Vitest suite: `npm test` inside `backend/`.
+- Verify all new tests in `backend/src/test/rsvp.test.ts` pass 100%.
+- Verify existing regression suites in `event.test.ts`, `admin.test.ts`, `auth.test.ts` remain 100% green.
+
+### Manual Verification
+- Log in as Student -> browse `/events` -> click "RSVP Pass" -> verify ticket created and attendee count increments.
+- Navigate to `/passes` -> verify confirmed event pass appears in Passbook with unique ticket number.
+- Log in as Faculty/Admin -> verify attendee list shows student registration in `/admin/events`.
+- Click "Cancel RSVP" -> verify pass removed from Passbook and attendee count decrements.

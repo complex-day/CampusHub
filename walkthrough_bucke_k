@@ -1,0 +1,53 @@
+# Walkthrough: Bucket K — Event RSVP System
+
+The **Event RSVP & Participation System (Bucket K)** has been implemented, transforming Utsav from event discovery into full event participation with capacity limits, ticket generation, passbook integration, and attendee visibility.
+
+---
+
+## 1. Documentation Updates
+
+- **PRD** ([`docs/PRD.md`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/docs/PRD.md)): Added Section 13 (Bucket K: Event RSVP & Attendance System).
+- **System Design** ([`docs/SYSTEM-DESIGN.md`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/docs/SYSTEM-DESIGN.md)): Added Section 15 with `EventRSVP` schema definition, compound indexes, state transitions (`confirmed` ↔ `cancelled`), and endpoint contracts.
+- **TDD** ([`docs/TDD.md`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/docs/TDD.md)): Added Section 13 defining `RSVP-001` through `RSVP-012`.
+- **Project Status** ([`docs/PROJECT_STATUS.md`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/docs/PROJECT_STATUS.md)): Updated status to Bucket K.
+- **Agent Memory** ([`docs/AGENT_MEMORY.md`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/docs/AGENT_MEMORY.md)): Added Bucket K architectural decisions.
+
+---
+
+## 2. TDD Test Suite (`backend/src/test/rsvp.test.ts`)
+
+Created [`backend/src/test/rsvp.test.ts`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/test/rsvp.test.ts) covering 12 test specifications:
+1. `RSVP-001`: Student RSVP creation and unique ticket generation (`PASS-xxxx-xxxx`).
+2. `RSVP-002`: Idempotent duplicate RSVP returns existing confirmed ticket.
+3. `RSVP-003`: Student RSVP cancellation sets status to `cancelled`.
+4. `RSVP-004`: Multi-tenant isolation blocks cross-college RSVPs.
+5. `RSVP-005`: Department visibility blocks unauthorized students from restricted department events.
+6. `RSVP-006`: Past event RSVP rejection.
+7. `RSVP-007`: Live attendee counts and `userRsvpd` flag in event listings and details.
+8. `RSVP-008`: Student passbook listing (`GET /api/me/passes`).
+9. `RSVP-009`: Admin / event creator attendee roster visibility (`GET /api/admin/events/:id/attendees`).
+10. `RSVP-010`: Unauthenticated request blocking.
+11. `RSVP-011`: Event capacity limit enforcement (returns `409 Conflict` when full).
+12. `RSVP-012`: Capacity re-allocation when a spot opens up after cancellation.
+
+---
+
+## 3. Backend Implementation
+
+- **Data Models**:
+  - [`EventRSVP`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/models/eventRsvp.model.ts): Mongoose model with compound unique index `{ eventId: 1, userId: 1 }` and indexes for tenant querying.
+  - [`Event`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/models/event.model.ts): Augmented with optional `capacity: { type: Number, min: 1, default: null }`.
+- **Controllers & Routing**:
+  - [`rsvpController.ts`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/controllers/rsvpController.ts): Implemented `createOrUpdateRsvp`, `cancelRsvp`, `getRsvpStatus`, `getMyPasses`, and `getEventAttendees`.
+  - [`eventController.ts`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/controllers/eventController.ts): Added capacity validation and real-time attendee telemetry.
+  - Mounted routes on [`eventRoutes.ts`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/routes/eventRoutes.ts), [`adminRoutes.ts`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/routes/adminRoutes.ts), and [`app.ts`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/backend/src/app.ts).
+
+---
+
+## 4. Frontend Integration
+
+- **Event Discovery & Cards** ([`EventCard.jsx`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/frontend/components/EventCard.jsx)): Connected live RSVP toggling, dynamic attendee counters (`X / Capacity`), and "Event Full" disabled state.
+- **Event Details Page** ([`events/[id]/page.jsx`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/frontend/app/events/%5Bid%5D/page.jsx)): Displays live RSVP action button, confirmed admission ticket banner (`Ticket #PASS-...`), and spots remaining.
+- **Event Creation Studio** ([`CreateEventForm.jsx`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/frontend/components/CreateEventForm.jsx)): Added optional attendee capacity input.
+- **Passbook** ([`passes/page.jsx`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/frontend/app/passes/page.jsx)): Real-time passbook fetching all active tickets from `/api/me/passes` with single-click cancellation.
+- **Admin Event Moderation** ([`admin/events/page.jsx`](file:///c:/Users/Lenovo/Desktop/PROJECT%20CREATED/campushub/frontend/app/admin/events/page.jsx)): Added "Roster" button and attendee modal displaying registered students, emails, and ticket numbers.

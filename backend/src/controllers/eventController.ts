@@ -2,6 +2,7 @@ import { isValidObjectId } from "mongoose";
 import { z, ZodError } from "zod";
 import type { AuthenticatedRequest } from "../auth/auth.middleware.js";
 import { Event } from "../models/event.model.js";
+import { EventRSVP } from "../models/eventRsvp.model.js";
 import { College } from "../models/college.model.js";
 import { Department } from "../models/department.model.js";
 import { User } from "../models/user.model.js";
@@ -19,6 +20,7 @@ const eventFields = {
   title: z.string().trim().min(1).max(200).transform(sanitizeText),
   description: z.string().trim().min(1).max(10000).transform(sanitizeText),
   location: z.string().trim().min(1).max(500).transform(sanitizeText),
+  capacity: z.number().int().positive().max(100000).nullable().optional(),
   posterUrl: z.string().url().max(2048).refine(isHttpUrl, "Invalid poster URL").nullable().optional(),
   departmentId: z.string().refine(isValidObjectId, "Invalid department id").nullable().optional()
 };
@@ -92,7 +94,29 @@ export async function createEvent(request: AuthenticatedRequest, response: any):
 export async function listEvents(request: AuthenticatedRequest, response: any): Promise<void> {
   const filter = { collegeId: request.auth?.collegeId, eventDate: { $gt: new Date() }, $or: visibility(request) };
   const events = await Event.find(filter).sort({ eventDate: 1 }).lean();
-  response.json({ events });
+
+  if (!events || events.length === 0) {
+    response.json({ events: [] });
+    return;
+  }
+
+  const eventIds = events.map((e) => e._id);
+  const rsvps = await EventRSVP.find({
+    eventId: { $in: eventIds },
+    status: "confirmed",
+  }).lean();
+
+  const eventsWithRsvps = events.map((ev) => {
+    const evRsvps = (rsvps || []).filter((r) => String(r.eventId) === String(ev._id));
+    const userRsvpd = Boolean((rsvps || []).some((r) => String(r.eventId) === String(ev._id) && String(r.userId) === request.auth?.userId));
+    return {
+      ...ev,
+      attendeeCount: evRsvps.length,
+      userRsvpd,
+    };
+  });
+
+  response.json({ events: eventsWithRsvps });
 }
 
 export async function getEvent(request: AuthenticatedRequest, response: any): Promise<void> {
@@ -105,7 +129,20 @@ export async function getEvent(request: AuthenticatedRequest, response: any): Pr
     response.status(404).json({ error: "Event not found" });
     return;
   }
-  response.json({ event });
+
+  const [attendeeCount, userRsvp] = await Promise.all([
+    EventRSVP.countDocuments({ eventId: event._id, status: "confirmed" }),
+    EventRSVP.findOne({ eventId: event._id, userId: request.auth?.userId, status: "confirmed" }).lean(),
+  ]);
+
+  response.json({
+    event: {
+      ...event,
+      attendeeCount: attendeeCount || 0,
+      userRsvpd: Boolean(userRsvp),
+      ticketNumber: userRsvp ? userRsvp.ticketNumber : null,
+    },
+  });
 }
 
 export async function updateEvent(request: AuthenticatedRequest, response: any): Promise<void> {

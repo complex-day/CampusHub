@@ -2,9 +2,16 @@ import { Router } from "express";
 import { requireAuth } from "../auth/auth.middleware.js";
 import { requireRole } from "../middleware/roleMiddleware.js";
 import { createCollege, createDepartment, deleteAnnouncement, deleteEvent, listAnnouncements, listColleges, listDepartments, listEvents, listUsers, metrics, updateCollege, updateDepartment, updateUserRole } from "../controllers/adminController.js";
+import { getEventAttendees } from "../controllers/rsvpController.js";
 
 export const adminRouter = Router();
-adminRouter.use(requireAuth, requireRole("admin"));
+adminRouter.use(requireAuth);
+
+// Attendee visibility allows Admin or Event Creator Faculty
+adminRouter.get("/events/:id/attendees", getEventAttendees);
+
+// Strict Admin-only routes
+adminRouter.use(requireRole("admin"));
 adminRouter.get("/metrics", metrics);
 adminRouter.get("/users", listUsers);
 adminRouter.patch("/users/:id/role", updateUserRole);

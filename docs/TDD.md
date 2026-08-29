@@ -738,6 +738,108 @@ Repeated image uploads:
 
 ---
 
+---
+
+# 13. Bucket K: Event RSVP & Attendance Tests
+
+## RSVP-001: Student RSVP Success
+### Given
+- An authenticated student and an upcoming event in their college.
+### When
+- `POST /api/events/:id/rsvp` is requested.
+### Then
+- Returns 201/200 with an RSVP record, confirmed status, and unique ticket number (`PASS-...`).
+
+## RSVP-002: Idempotent / Duplicate RSVP
+### Given
+- A student already has an active confirmed RSVP for the event.
+### When
+- `POST /api/events/:id/rsvp` is submitted again.
+### Then
+- Returns 200 with existing ticket without duplicate record creation.
+
+## RSVP-003: RSVP Cancellation
+### Given
+- A student with an active confirmed RSVP.
+### When
+- `DELETE /api/events/:id/rsvp` is requested.
+### Then
+- RSVP is marked `cancelled`, returns 200, and frees up capacity.
+
+## RSVP-004: Multi-Tenant Boundary
+### Given
+- A student from College A and an event belonging to College B.
+### When
+- `POST /api/events/:id/rsvp` is requested.
+### Then
+- Returns 404 or 403. Cross-tenant RSVP is strictly rejected.
+
+## RSVP-005: Department Scope Boundary
+### Given
+- An event restricted to Department X and a student in Department Y.
+### When
+- `POST /api/events/:id/rsvp` is requested.
+### Then
+- Returns 403 or 404. Student cannot RSVP to other department's private events.
+
+## RSVP-006: Past Event RSVP Rejection
+### Given
+- An event whose `eventDate` has already passed.
+### When
+- `POST /api/events/:id/rsvp` is requested.
+### Then
+- Returns 400 with "Cannot RSVP to past events".
+
+## RSVP-007: Event List & Details Attendee Telemetry
+### Given
+- An event with confirmed RSVPs.
+### When
+- `GET /api/events` or `GET /api/events/:id` is requested.
+### Then
+- Response includes `attendeeCount` and `userRsvpd: boolean`.
+
+## RSVP-008: Student Passbook History
+### Given
+- A student with confirmed event RSVPs.
+### When
+- `GET /api/me/passes` is requested.
+### Then
+- Returns populated list of active and upcoming event passes.
+
+## RSVP-009: Admin / Creator Attendee Roster
+### Given
+- An admin or the faculty member who created the event.
+### When
+- `GET /api/admin/events/:id/attendees` is requested.
+### Then
+- Returns list of confirmed attendees with names, emails, and ticket numbers.
+
+## RSVP-010: Authentication Enforcement
+### Given
+- An unauthenticated request.
+### When
+- RSVP endpoints are called.
+### Then
+- Returns 401 Unauthorized.
+
+## RSVP-011: Event Capacity Limit Enforcement
+### Given
+- An event with `capacity: N` and `N` confirmed RSVPs.
+### When
+- Another student attempts `POST /api/events/:id/rsvp`.
+### Then
+- Returns 409 Conflict with "Event has reached maximum capacity".
+
+## RSVP-012: Capacity Re-allocation on Cancellation
+### Given
+- A full event where one attendee cancels their RSVP.
+### When
+- A new student attempts `POST /api/events/:id/rsvp`.
+### Then
+- RSVP succeeds and issues a new ticket.
+
+---
+
 # Definition of Done
 
 CampusHub MVP is complete only when:
@@ -746,13 +848,14 @@ CampusHub MVP is complete only when:
 - All Authorization tests pass.
 - All College Isolation tests pass.
 - All Announcement tests pass.
-- All Event tests pass.
+- All Event & RSVP tests (RSVP-001 through RSVP-012) pass.
 - All Search tests pass.
 - All Security tests pass.
 - All Performance requirements pass.
 - No memory leaks detected.
 - Test coverage >= 80%.
 
-Expected Test Count: ~50+
+Expected Test Count: ~75+
 Expected MVP Target Users: First Campus Deployment
 Expected Architecture: Multi-Tenant College Workspace System
+

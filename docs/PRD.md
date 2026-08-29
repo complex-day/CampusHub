@@ -434,3 +434,27 @@ The MVP is successful if:
 3. Students regularly check announcements.
 4. Important information is no longer dependent on WhatsApp forwarding.
 5. The platform becomes the primary source of campus notices.
+
+---
+
+# 13. Bucket K: Event RSVP & Attendance System
+
+## Purpose
+Convert campus events from passive discovery into active student participation and attendee capacity management.
+
+## Functional Capabilities
+1. **One-Click Event RSVP**:
+   - Authenticated students can RSVP to upcoming events within their college.
+   - Enforces department visibility (students cannot RSVP to restricted department events unless enrolled).
+   - Generates a unique, human-readable ticket number (`PASS-{eventShortId}-{random}`).
+2. **RSVP Cancellation**:
+   - Students can cancel their RSVP at any time before the event date, freeing up capacity for others.
+3. **Event Capacity Management**:
+   - Event organizers (faculty/admin) can set an optional maximum attendee capacity.
+   - When capacity is reached, new RSVPs are rejected with a clear capacity alert.
+   - Cancellations immediately restore available spots.
+4. **Student Passbook History**:
+   - Students have a centralized digital passbook (`/passes`) listing all active and past event tickets.
+5. **Attendee Visibility**:
+   - Event creators and administrators have full visibility into confirmed attendees for logistics planning.
+

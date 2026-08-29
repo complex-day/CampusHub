@@ -8,6 +8,7 @@ const eventSchema = new Schema(
     departmentId: { type: Schema.Types.ObjectId, ref: "Department", default: null },
     eventDate: { type: Date, required: true },
     location: { type: String, required: true, trim: true, minlength: 1, maxlength: 500 },
+    capacity: { type: Number, min: 1, default: null },
     posterUrl: { type: String, trim: true, maxlength: 2048 },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     createdAt: { type: Date, default: Date.now },

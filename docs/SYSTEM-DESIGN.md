@@ -263,7 +263,40 @@ Potential queries include upcoming events, latest notices, department informatio
 2. Departments and announcements
 3. Poster uploads and events
 4. Search and testing
+5. Bucket K: Event RSVP & Participation System
+
+## 15. Bucket K: Event RSVP Architecture & Data Model
+
+### Event Model Extension
+`Event` is augmented with an optional capacity field:
+- `capacity`: Number (optional, min 1, max 100,000)
+
+### EventRSVP Schema
+```typescript
+{
+  eventId: ObjectId,      // ref: "Event", required, indexed
+  userId: ObjectId,       // ref: "User", required, indexed
+  collegeId: ObjectId,    // ref: "College", required, indexed
+  status: String,         // "confirmed" | "cancelled", default: "confirmed", indexed
+  ticketNumber: String,   // e.g. PASS-E14F-K8A9
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Indexes
+- `{ eventId: 1, userId: 1 }` (unique compound index)
+- `{ userId: 1, collegeId: 1, status: 1 }`
+- `{ eventId: 1, status: 1 }`
+
+### API Endpoints
+- `POST /api/events/:id/rsvp`: Reserve pass and generate ticket (validates tenant, future date, department, and capacity).
+- `DELETE /api/events/:id/rsvp`: Cancel pass reservation.
+- `GET /api/events/:id/rsvp`: Check current user's RSVP status.
+- `GET /api/me/passes`: List active event passes for the student.
+- `GET /api/admin/events/:id/attendees`: List confirmed attendees for event organizers and admins.
 
 ## Architecture Summary
 
-CampusHub is a multi-tenant campus communication platform built with Next.js, Express, MongoDB Atlas, and Cloudinary. The architecture prioritizes college-level data isolation, role-based access control, and scalable announcement delivery while remaining simple enough for a solo developer to build and maintain.
+CampusHub is a multi-tenant campus communication platform built with Next.js, Express, MongoDB Atlas, and Cloudinary. The architecture prioritizes college-level data isolation, role-based access control, scalable announcement delivery, and dynamic event participation while remaining simple enough for a solo developer to build and maintain.
+

@@ -15,6 +15,7 @@ import { globalErrorHandler } from "./middleware/errorMiddleware.js";
 import { securityHeaders } from "./middleware/securityMiddleware.js";
 import { adminRouter } from "./routes/adminRoutes.js";
 import { isDatabaseReady } from "./db.js";
+import { getMyPasses } from "./controllers/rsvpController.js";
 
 export const app = express();
 
@@ -48,5 +49,6 @@ app.use("/api/admin", adminRouter);
 app.get("/api/me", requireAuth, (request, response) => {
   response.json({ auth: (request as typeof request & { auth?: unknown }).auth });
 });
+app.get("/api/me/passes", requireAuth, getMyPasses);
 
 app.use(globalErrorHandler);
