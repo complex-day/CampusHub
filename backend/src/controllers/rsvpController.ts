@@ -11,7 +11,7 @@ function generateTicketNumber(eventId: string): string {
 
 export async function createOrUpdateRsvp(request: AuthenticatedRequest, response: any): Promise<void> {
   try {
-    const eventId = request.params.id;
+    const eventId = String(request.params.id);
     if (!isValidObjectId(eventId)) {
       response.status(400).json({ error: "Invalid event id" });
       return;
@@ -83,7 +83,7 @@ export async function createOrUpdateRsvp(request: AuthenticatedRequest, response
 
 export async function cancelRsvp(request: AuthenticatedRequest, response: any): Promise<void> {
   try {
-    const eventId = request.params.id;
+    const eventId = String(request.params.id);
     if (!isValidObjectId(eventId)) {
       response.status(400).json({ error: "Invalid event id" });
       return;
@@ -118,7 +118,7 @@ export async function cancelRsvp(request: AuthenticatedRequest, response: any): 
 
 export async function getRsvpStatus(request: AuthenticatedRequest, response: any): Promise<void> {
   try {
-    const eventId = request.params.id;
+    const eventId = String(request.params.id);
     if (!isValidObjectId(eventId)) {
       response.status(400).json({ error: "Invalid event id" });
       return;
@@ -171,7 +171,7 @@ export async function getMyPasses(request: AuthenticatedRequest, response: any):
 
 export async function getEventAttendees(request: AuthenticatedRequest, response: any): Promise<void> {
   try {
-    const eventId = request.params.id;
+    const eventId = String(request.params.id);
     if (!isValidObjectId(eventId)) {
       response.status(400).json({ error: "Invalid event id" });
       return;
