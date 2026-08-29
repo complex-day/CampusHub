@@ -24,10 +24,10 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
   async function handleLogout() {
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
-      router.push("/announcements");
+      router.push("/login");
       window.location.reload();
     } catch {
-      window.location.href = "/announcements";
+      window.location.href = "/login";
     }
   }
 
@@ -40,37 +40,22 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
   return (
     <>
       {/* =========================================================================
-          DESKTOP SIDEBAR DOCK (256px Fixed Torii Gateway)
+          DESKTOP SIDEBAR DOCK (Fixed 250px on >=1024px)
           ========================================================================= */}
-      <aside
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          bottom: 0,
-          width: "256px",
-          backgroundColor: "var(--surface-lift)",
-          borderRight: "1px solid var(--border-subtle)",
-          display: "flex",
-          flexDirection: "column",
-          padding: "28px 16px",
-          zIndex: 40,
-        }}
-        className="hidden lg:flex"
-      >
+      <aside className="torii-desktop-sidebar">
         {/* Brand Header */}
-        <div style={{ padding: "0 12px 28px 12px" }}>
+        <div style={{ padding: "0 12px 24px 12px", borderBottom: "1px solid var(--border-subtle)", marginBottom: "16px" }}>
           <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>
             <span
               className="font-headline-md"
-              style={{ color: "var(--indigo-dye)", display: "block", letterSpacing: "-0.01em" }}
+              style={{ color: "var(--indigo-primary)", display: "block", letterSpacing: "-0.01em" }}
             >
               CampusHub
             </span>
             <span
               className="font-label-sm"
               style={{
-                color: "var(--sandstone-text)",
+                color: "var(--terracotta)",
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
                 display: "block",
@@ -95,14 +80,14 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
                   alignItems: "center",
                   gap: "14px",
                   padding: "10px 14px",
-                  borderRadius: "4px",
+                  borderRadius: "6px",
                   textDecoration: "none",
-                  backgroundColor: active ? "var(--surface-highest)" : "transparent",
+                  backgroundColor: active ? "var(--surface-high)" : "transparent",
                   color: active ? "var(--terracotta)" : "var(--sandstone-text)",
                   borderRight: active ? "3px solid var(--terracotta)" : "3px solid transparent",
-                  fontWeight: active ? 600 : 400,
+                  fontWeight: active ? 600 : 500,
                   fontSize: "14px",
-                  transition: "all 180ms ease",
+                  transition: "all 160ms ease",
                 }}
               >
                 <span
@@ -121,17 +106,17 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
           })}
         </nav>
 
-        {/* Bottom Utility & Saarthi Launch */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto" }}>
+        {/* Bottom Utility & Auth Actions */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto", borderTop: "1px solid var(--border-subtle)", paddingTop: "16px" }}>
           <button
             onClick={() => setSaarthiOpen(true)}
             className="btn-secondary"
-            style={{ width: "100%", justifyContent: "center", fontSize: "12px", padding: "10px 12px" }}
+            style={{ width: "100%", justifyContent: "center", fontSize: "12px", padding: "8px 12px" }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
               temp_preferences_custom
             </span>
-            <span>Launch Saarthi AI</span>
+            <span>Ask Saarthi AI</span>
           </button>
 
           {auth ? (
@@ -140,12 +125,12 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "8px 12px",
-                borderTop: "1px solid var(--border-subtle)",
-                marginTop: "6px",
+                padding: "8px",
+                backgroundColor: "var(--surface-high)",
+                borderRadius: "6px",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden" }}>
                 <span
                   style={{
                     width: "28px",
@@ -158,13 +143,19 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
                     justifyContent: "center",
                     fontSize: "12px",
                     fontWeight: 600,
+                    flexShrink: 0,
                   }}
                 >
                   {auth.name ? auth.name.charAt(0).toUpperCase() : "U"}
                 </span>
-                <span className="font-body-sm" style={{ color: "var(--text-primary)", fontWeight: 500 }}>
-                  {auth.name || "Student"}
-                </span>
+                <div style={{ minWidth: 0 }}>
+                  <strong className="font-body-sm" style={{ color: "var(--text-primary)", display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {auth.name || "Student"}
+                  </strong>
+                  <span className="font-label-sm" style={{ color: "var(--sandstone-muted)", textTransform: "capitalize", display: "block" }}>
+                    {auth.role || "student"}
+                  </span>
+                </div>
               </div>
               <button
                 onClick={handleLogout}
@@ -172,8 +163,9 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
                 style={{
                   background: "transparent",
                   border: "none",
-                  color: "var(--sandstone-muted)",
+                  color: "var(--error-crimson)",
                   cursor: "pointer",
+                  padding: "4px",
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
@@ -182,13 +174,20 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
               </button>
             </div>
           ) : (
-            <div style={{ display: "flex", gap: "8px", paddingTop: "8px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               <Link
-                href="/announcements"
-                className="btn-ghost"
-                style={{ flex: 1, justifyContent: "center", fontSize: "12px" }}
+                href="/login"
+                className="btn-primary"
+                style={{ width: "100%", justifyContent: "center", fontSize: "12px", padding: "8px 12px" }}
               >
                 Sign In
+              </Link>
+              <Link
+                href="/register"
+                className="btn-ghost"
+                style={{ width: "100%", justifyContent: "center", fontSize: "12px", padding: "6px 12px" }}
+              >
+                Create Account
               </Link>
             </div>
           )}
@@ -198,99 +197,87 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
       {/* =========================================================================
           TOP UTILITY APP BAR
           ========================================================================= */}
-      <header
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 30,
-          backgroundColor: "rgba(247, 243, 234, 0.95)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid var(--border-subtle)",
-          padding: "14px 32px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-        className="lg:ml-[256px]"
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span className="font-headline-sm" style={{ color: "var(--indigo-dye)", fontWeight: 700 }}>
-            CampusHub
-          </span>
+      <header className="torii-topbar">
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <Link href="/" style={{ textDecoration: "none", color: "inherit" }} className="hide-on-desktop">
+            <span className="font-headline-sm" style={{ color: "var(--indigo-primary)", fontWeight: 700 }}>
+              CampusHub
+            </span>
+          </Link>
           <span
             style={{
-              padding: "3px 10px",
+              padding: "4px 10px",
               borderRadius: "4px",
               backgroundColor: "var(--surface-high)",
               color: "var(--sandstone-text)",
               fontSize: "11px",
               fontWeight: 600,
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
+              letterSpacing: "0.02em",
             }}
           >
-            Apex Institute • Semester 4
+            {auth ? `Logged in: ${auth.name} (${auth.role})` : "Apex Institute of Technology"}
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <Link
             href="/search"
+            className="hide-on-mobile"
             style={{
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              backgroundColor: "var(--surface-lift)",
+              backgroundColor: "#FFFFFF",
               border: "1px solid var(--border-subtle)",
               borderRadius: "20px",
               padding: "6px 16px",
               color: "var(--sandstone-text)",
-              textDecoration: "none",
               fontSize: "13px",
               width: "220px",
             }}
-            className="hidden md:flex"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+            <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "var(--sandstone-muted)" }}>
               search
             </span>
             <span>Search notices, events...</span>
           </Link>
 
-          <button
-            onClick={() => setSaarthiOpen(true)}
-            className="btn-primary"
-            style={{ fontSize: "12px", padding: "6px 14px" }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-              temp_preferences_custom
-            </span>
-            <span>Ask Saarthi</span>
-          </button>
+          {auth ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <Link href="/passes" className="btn-ghost" style={{ fontSize: "12px", padding: "6px 10px" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                  badge
+                </span>
+                <span className="hide-on-mobile">Passbook</span>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="btn-ghost"
+                style={{ fontSize: "12px", padding: "6px 10px", color: "var(--error-crimson)" }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                  logout
+                </span>
+                <span className="hide-on-mobile">Logout</span>
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Link href="/login" className="btn-primary" style={{ fontSize: "12px", padding: "6px 14px" }}>
+                Sign In
+              </Link>
+              <Link href="/register" className="btn-secondary hide-on-mobile" style={{ fontSize: "12px", padding: "6px 14px" }}>
+                Register
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
       {/* =========================================================================
-          MOBILE BOTTOM THUMB BAR (< 1024px)
+          MOBILE BOTTOM THUMB BAR (<1024px)
           ========================================================================= */}
-      <nav
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: "var(--surface-lift)",
-          borderTop: "1px solid var(--border-subtle)",
-          display: "flex",
-          justifyContent: "space-around",
-          alignItems: "center",
-          padding: "8px 0 14px 0",
-          zIndex: 50,
-        }}
-        className="flex lg:hidden"
-        aria-label="Mobile Bottom Navigation"
-      >
+      <nav className="torii-mobile-nav" aria-label="Mobile Navigation">
         {navItems.slice(0, 5).map((item) => {
           const active = isCurrentActive(item);
           return (
@@ -322,7 +309,7 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
       </nav>
 
       {/* =========================================================================
-          SAARTHI AI COMPANION MODAL (NON-FUNCTIONAL VISUAL PLACEHOLDER)
+          SAARTHI AI COMPANION MODAL
           ========================================================================= */}
       {saarthiOpen && (
         <div
@@ -342,11 +329,11 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
         >
           <div
             style={{
-              backgroundColor: "var(--surface-lift)",
+              backgroundColor: "#FFFFFF",
               border: "1px solid var(--border-subtle)",
-              borderRadius: "8px",
+              borderRadius: "10px",
               width: "100%",
-              maxWidth: "580px",
+              maxWidth: "540px",
               boxShadow: "0 16px 40px rgba(38, 55, 83, 0.2)",
               padding: "28px",
             }}
@@ -371,11 +358,11 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-headline-sm" style={{ color: "var(--indigo-dye)", margin: 0 }}>
+                  <h3 className="font-headline-sm" style={{ color: "var(--indigo-primary)", margin: 0 }}>
                     Saarthi AI Sanctuary
                   </h3>
                   <span className="font-label-sm" style={{ color: "var(--sandstone-text)" }}>
-                    Tenant-Bounded Campus Guide (Preview)
+                    Tenant-Bounded Campus Assistant (Preview)
                   </span>
                 </div>
               </div>
@@ -392,23 +379,20 @@ export default function ToriiNav({ auth, activeSection = "home" }) {
               </button>
             </div>
 
-            <p className="font-body-md" style={{ color: "var(--sandstone-text)", marginBottom: "20px" }}>
-              Saarthi is your personal academic companion. Ask questions regarding exam dates, official circulars, timetable conflicts, and campus life.
+            <p className="font-body-md" style={{ color: "var(--sandstone-text)", marginBottom: "18px" }}>
+              Saarthi is your personal academic companion. Ask questions regarding exam dates, official circulars, and campus life.
             </p>
 
-            <div style={{ backgroundColor: "var(--bg-washi)", border: "1px solid var(--border-subtle)", borderRadius: "6px", padding: "14px", marginBottom: "20px" }}>
-              <span className="font-label-sm" style={{ color: "var(--terracotta)", display: "block", marginBottom: "8px" }}>
-                Try asking:
+            <div style={{ backgroundColor: "var(--surface-high)", border: "1px solid var(--border-subtle)", borderRadius: "6px", padding: "14px", marginBottom: "20px" }}>
+              <span className="font-label-sm" style={{ color: "var(--terracotta)", display: "block", marginBottom: "6px" }}>
+                Sample Prompts:
               </span>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                 <span className="font-body-sm" style={{ color: "var(--text-primary)" }}>
                   • "When is the internal submission deadline for DSP?"
                 </span>
                 <span className="font-body-sm" style={{ color: "var(--text-primary)" }}>
                   • "Summarize the latest college-wide circular."
-                </span>
-                <span className="font-body-sm" style={{ color: "var(--text-primary)" }}>
-                  • "Are there any hackathons scheduled this weekend?"
                 </span>
               </div>
             </div>

@@ -34,12 +34,6 @@
 
 - Documentation foundation: PRD, system design, TDD, development plan, and project status.
 - Bucket A: Foundation and authentication.
-  - Node.js workspace and TypeScript backend
-  - MongoDB connection helper
-  - Tenant-aware User model
-  - Registration with bcrypt hashing
-  - Login, logout, JWT verification, and protected session endpoint
-  - AUTH-001 through AUTH-005 tests
 - Bucket B: College management, department management, department membership, and role middleware
 - Bucket C: Announcement System
 - Bucket D: Poster Upload System
@@ -51,6 +45,7 @@
 - Bucket J0: Production Readiness
 - Kintsugi Academic UI Redesign
 - Bucket K: Event RSVP & Participation System (Completed)
+- Bucket L0: Beta Testing & User Validation (Completed)
 
 ## Bucket K Decisions
 
@@ -64,9 +59,15 @@
 - Multi-tenant isolation and department visibility rules apply to all RSVP operations server-side.
 - Full 12-test suite (`RSVP-001` to `RSVP-012`) validates all functional, capacity, and tenant boundary constraints.
 
+## Bucket L0 Decisions
+
+- Beta research focuses specifically on verifying student and faculty preference for CampusHub over noisy WhatsApp groups.
+- 5 operational documents created: `BETA_TEST_PLAN.md`, `TESTER_ONBOARDING_GUIDE.md`, `FEEDBACK_FORM.md`, `BUG_TRIAGE_PROCESS.md`, `FEATURE_PRIORITIZATION_FRAMEWORK.md`.
+- Feature scoring uses an adapted RICE model combined with Kano classification.
+
 ## Current Work
 
-- Bucket K completed & validated. Ready for next sprint.
+- Bucket L0 framework complete. Ready for Beta tester recruitment or Bucket L (Pathshala Academic Module).
 
 ## Memory Rule
 
