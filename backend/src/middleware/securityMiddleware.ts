@@ -9,10 +9,10 @@ const limiterOptions = {
   skip: () => process.env.DISABLE_RATE_LIMIT === "true"
 };
 
-export const authRateLimit = rateLimit({ ...limiterOptions, windowMs: 15 * 60 * 1000, limit: 10, message: { error: "Too many authentication attempts" } });
-export const searchRateLimit = rateLimit({ ...limiterOptions, windowMs: 60 * 1000, limit: 30, message: { error: "Too many search requests" } });
-export const uploadRateLimit = rateLimit({ ...limiterOptions, windowMs: 60 * 1000, limit: 10, message: { error: "Too many upload requests" } });
-export const contentCreationRateLimit = rateLimit({ ...limiterOptions, windowMs: 60 * 1000, limit: 20, message: { error: "Too many content creation requests" } });
+export const authRateLimit = rateLimit({ ...limiterOptions, windowMs: 15 * 60 * 1000, limit: 100, message: { error: "Too many authentication attempts" } });
+export const searchRateLimit = rateLimit({ ...limiterOptions, windowMs: 60 * 1000, limit: 60, message: { error: "Too many search requests" } });
+export const uploadRateLimit = rateLimit({ ...limiterOptions, windowMs: 60 * 1000, limit: 30, message: { error: "Too many upload requests" } });
+export const contentCreationRateLimit = rateLimit({ ...limiterOptions, windowMs: 60 * 1000, limit: 50, message: { error: "Too many content creation requests" } });
 
 export function resetRateLimiters(): void {
   for (const limiter of [authRateLimit, searchRateLimit, uploadRateLimit, contentCreationRateLimit] as RateLimitRequestHandler[]) {

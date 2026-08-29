@@ -19,6 +19,7 @@ import { getMyPasses } from "./controllers/rsvpController.js";
 
 export const app = express();
 
+app.set("trust proxy", 1);
 app.disable("x-powered-by");
 app.use(securityHeaders);
 app.use(cors({ origin: config.clientOrigin, credentials: true }));
